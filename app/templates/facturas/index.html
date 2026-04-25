@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Facturas{% endblock %}
+{% block page_title %}Facturas{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Facturas</h2>
+    <p>{{ facturas|length }} factura(s) registrada(s)</p>
+  </div>
+  <a href="{{ url_for('factura.agregar') }}" class="btn-primary-mt"><i class="fas fa-plus"></i> Nueva Factura</a>
+</div>
+<div class="card">
+  {% if facturas %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th>Orden</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in facturas %}
+      <tr>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--naranja);">{{ '%04d'|format(f.id_factura) }}</td>
+        <td style="font-weight:600;color:var(--text);">{{ f.cliente.nombre if f.cliente else '—' }}</td>
+        <td>
+          {% if f.id_servicio %}
+          <span style="background:rgba(255,255,255,0.07);color:var(--text-muted);font-size:11px;padding:3px 9px;border-radius:6px;font-weight:600;">#{{ f.id_servicio }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td style="color:var(--text-muted);">{{ f.fecha.strftime('%d/%m/%Y') }}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-weight:800;color:var(--naranja);font-size:17px;">${{ '{:,.0f}'.format(f.total) }}</td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('factura.ver', id=f.id_factura) }}" class="action-btn view"><i class="fas fa-eye"></i></a>
+          <form method="POST" action="{{ url_for('factura.eliminar', id=f.id_factura) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar factura #{{ f.id_factura }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-file-invoice-dollar"></i>
+    <p>No hay facturas registradas aún.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

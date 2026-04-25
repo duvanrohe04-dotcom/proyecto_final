@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Mecánico — {{ mecanico.nombre }}{% endblock %}
+{% block page_title %}Detalle del Mecánico{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card">
+      <div style="padding:28px;text-align:center;">
+        <div style="width:70px;height:70px;background:linear-gradient(135deg,#FF5C00,#FF8A00);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(255,92,0,0.3);">
+          <i class="fas fa-hard-hat" style="color:#fff;font-size:26px;"></i>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;">{{ mecanico.nombre }}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;"><i class="fas fa-phone me-1" style="color:var(--naranja);"></i>{{ mecanico.telefono or 'Sin teléfono' }}</div>
+        <div style="font-size:13px;color:var(--text-muted);"><i class="fas fa-tools me-1" style="color:var(--naranja);"></i>{{ mecanico.especialidad or 'Sin especialidad' }}</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:22px;">
+          <a href="{{ url_for('mecanico.editar', id=mecanico.id_mecanico) }}" class="btn-primary-mt" style="font-size:12px;padding:7px 16px;"><i class="fas fa-pen"></i> Editar</a>
+          <a href="{{ url_for('mecanico.index') }}" class="btn-secondary-mt" style="font-size:12px;padding:7px 16px;">Volver</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-clipboard-list"></i> Servicios realizados ({{ ordenes|length }})</div>
+      {% if ordenes %}
+      <table class="table-mt">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Moto</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th style="text-align:right;">Ver</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in ordenes %}
+          <tr>
+            <td style="color:var(--text-dim);">{{ o.id_servicio }}</td>
+            <td><span class="placa-tag">{{ o.moto.placa }}</span></td>
+            <td style="color:var(--text);">{{ o.moto.cliente.nombre }}</td>
+            <td style="color:var(--text-muted);">{{ o.fecha.strftime('%d/%m/%Y') }}</td>
+            <td><span class="badge-mt badge-{{ o.estado }}">{{ o.estado.replace('_',' ').title() }}</span></td>
+            <td style="text-align:right;">
+              <a href="{{ url_for('orden.detalle', id=o.id_servicio) }}" class="action-btn view" title="Ver Detalle"><i class="fas fa-eye"></i></a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-clipboard-list"></i><p>Sin servicios registrados</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

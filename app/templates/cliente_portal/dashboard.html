@@ -1,0 +1,85 @@
+{% extends 'base_portal.html' %}
+{% block title %}Mi Portal — MotoTaller{% endblock %}
+{% block content %}
+<div class="portal-hero">
+  <h1>¡Bienvenido, {{ current_user.nombre_usuario }}!</h1>
+  <p>Agenda tu servicio de moto de forma fácil y rápida.</p>
+  <i class="fas fa-motorcycle hero-icon"></i>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <a href="{{ url_for('portal.agendar') }}" style="text-decoration:none;">
+      <div class="p-card" style="transition:transform 0.15s,box-shadow 0.15s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(255,92,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="p-card-body" style="display:flex;align-items:center;gap:18px;padding:26px 24px;">
+          <div style="width:56px;height:56px;background:linear-gradient(135deg,#FF5C00,#FF8A00);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(255,92,0,0.3);">
+            <i class="fas fa-calendar-plus" style="color:#fff;font-size:22px;"></i>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;">Agendar Servicio</div>
+            <div style="font-size:13px;color:var(--text-muted);">Programa una cita para tu moto</div>
+          </div>
+          <i class="fas fa-chevron-right ms-auto" style="color:#555;"></i>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-6">
+    <a href="{{ url_for('portal.mis_citas') }}" style="text-decoration:none;">
+      <div class="p-card" style="transition:transform 0.15s,box-shadow 0.15s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(124,58,237,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="p-card-body" style="display:flex;align-items:center;gap:18px;padding:26px 24px;">
+          <div style="width:56px;height:56px;background:linear-gradient(135deg,#7C3AED,#a78bfa);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(124,58,237,0.25);">
+            <i class="fas fa-list-alt" style="color:#fff;font-size:22px;"></i>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;">Ver Citas</div>
+            <div style="font-size:13px;color:var(--text-muted);">Consulta el historial de servicios</div>
+          </div>
+          <i class="fas fa-chevron-right ms-auto" style="color:#555;"></i>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="p-card">
+  <div class="p-card-header">
+    <div class="p-card-header-icon"><i class="fas fa-info-circle"></i></div>
+    <div>
+      <div class="p-card-header-title">¿Cómo funciona?</div>
+      <div class="p-card-header-sub">Proceso de agendamiento de servicio</div>
+    </div>
+  </div>
+  <div class="p-card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div style="text-align:center;padding:20px 12px;">
+          <div style="width:52px;height:52px;background:rgba(255,92,0,0.15);border:1px solid rgba(255,92,0,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            <i class="fas fa-calendar-plus" style="color:#FF5C00;font-size:20px;"></i>
+          </div>
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px;font-size:15px;">1. Agenda tu cita</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">Llena el formulario con los datos de tu moto y el servicio que necesitas.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="text-align:center;padding:20px 12px;">
+          <div style="width:52px;height:52px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            <i class="fas fa-tools" style="color:#a78bfa;font-size:20px;"></i>
+          </div>
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px;font-size:15px;">2. Revisamos tu caso</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">Nuestro equipo asignará un mecánico especializado según tu requerimiento.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="text-align:center;padding:20px 12px;">
+          <div style="width:52px;height:52px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            <i class="fas fa-check-circle" style="color:#4ade80;font-size:20px;"></i>
+          </div>
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px;font-size:15px;">3. ¡Listo!</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">Recoge tu moto en perfectas condiciones en la fecha acordada.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

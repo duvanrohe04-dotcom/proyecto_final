@@ -1,0 +1,62 @@
+{% extends 'base_portal.html' %}
+{% block title %}Cita Confirmada — MotoTaller{% endblock %}
+{% block content %}
+<div style="max-width:580px;margin:0 auto;text-align:center;padding:20px 0;">
+  <div style="width:80px;height:80px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 10px 30px rgba(34,197,94,0.3);">
+    <i class="fas fa-check" style="color:#fff;font-size:34px;"></i>
+  </div>
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;color:var(--text);margin-bottom:8px;">¡Cita Confirmada!</div>
+  <div style="font-size:15px;color:var(--text-muted);margin-bottom:32px;">Tu cita ha sido registrada exitosamente. Te esperamos en el taller.</div>
+
+  <div class="p-card mb-4" style="text-align:left;">
+    <div class="p-card-header">
+      <div class="p-card-header-icon"><i class="fas fa-clipboard-check"></i></div>
+      <div>
+        <div class="p-card-header-title">Detalles de tu cita</div>
+        <div class="p-card-header-sub">Orden #{{ orden.id_servicio }}</div>
+      </div>
+    </div>
+    <div class="p-card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Moto</div>
+          <div style="font-weight:700;font-size:16px;color:var(--text);">{{ orden.moto.placa }}</div>
+          {% if orden.moto.tipo %}<div style="font-size:13px;color:var(--text-muted);">{{ orden.moto.tipo }}</div>{% endif %}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Cliente</div>
+          <div style="font-weight:700;font-size:15px;color:var(--text);">{{ orden.moto.cliente.nombre }}</div>
+          {% if orden.moto.cliente.telefono %}<div style="font-size:13px;color:var(--text-muted);">{{ orden.moto.cliente.telefono }}</div>{% endif %}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Fecha y Hora</div>
+          <div style="font-weight:600;color:var(--text);">{{ orden.fecha.strftime('%d/%m/%Y') }} — <span style="color:var(--naranja);">{{ orden.hora }}</span></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Mecánico</div>
+          <div style="font-weight:600;color:var(--text);">{{ orden.mecanico.nombre if orden.mecanico else 'Por asignar' }}</div>
+        </div>
+        {% if orden.descripcion %}
+        <div style="grid-column:1/-1;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Descripción</div>
+          <div style="font-size:13px;color:var(--text-muted);background:var(--surface2);padding:10px 14px;border-radius:8px;border:1px solid var(--border);">{{ orden.descripcion }}</div>
+        </div>
+        {% endif %}
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Estado</div>
+          <span class="badge-mt badge-pendiente">Pendiente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center;">
+    <a href="{{ url_for('portal.agendar') }}" class="btn-orange">
+      <i class="fas fa-calendar-plus"></i> Agendar otra cita
+    </a>
+    <a href="{{ url_for('portal.mis_citas') }}" class="btn-outline">
+      <i class="fas fa-list"></i> Ver mis citas
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Ajustes del Sistema{% endblock %}
+{% block page_title %}Configuración General{% endblock %}
+{% block content %}
+<div style="max-width:750px;">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-cog"></i> Personalización de la Aplicación</div>
+    <div class="card-body-pad">
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-4">
+          <label class="form-label">Nombre del Taller / Aplicación</label>
+          <input type="text" name="app_name" class="form-control" value="{{ app_name }}" placeholder="Ej. MotoTaller Pro">
+          <div style="font-size:12px;color:var(--text-dim);margin-top:6px;">Este nombre aparecerá en la barra lateral y en los títulos de las páginas.</div>
+        </div>
+
+        <div style="margin-top:30px;padding-top:20px;border-top:1px solid var(--border);">
+          <label class="form-label">Logo del Taller</label>
+          
+          <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:20px;">
+            <div style="width:100px;height:100px;background:var(--dark3);border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);overflow:hidden;">
+              {% if app_logo %}
+                {% if app_logo.startswith('http') %}
+                  <img src="{{ app_logo }}" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">
+                {% else %}
+                  <img src="{{ url_for('static', filename=app_logo.replace('static/','')) }}" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">
+                {% endif %}
+              {% else %}
+                <i class="fas fa-image" style="font-size:30px;color:var(--text-dim);"></i>
+              {% endif %}
+            </div>
+            <div style="flex:1;">
+              <div class="mb-3">
+                <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:5px;">Opción 1: Cargar archivo de imagen</label>
+                <input type="file" name="app_logo_file" class="form-control" accept="image/*">
+              </div>
+              <div class="mb-0">
+                <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:5px;">Opción 2: Usar URL de imagen externa</label>
+                <input type="text" name="app_logo_url" class="form-control" placeholder="https://ejemplo.com/logo.png" value="{{ app_logo if app_logo and app_logo.startswith('http') else '' }}">
+              </div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);">Se recomienda una imagen cuadrada o rectangular con fondo transparente.</div>
+        </div>
+
+        <!-- ═══ REDES SOCIALES ═══ -->
+        <div style="margin-top:35px;padding-top:25px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:38px;height:38px;background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <i class="fab fa-instagram" style="color:#fff;font-size:18px;"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;color:var(--text);font-size:15px;">Redes Sociales y Contacto</div>
+              <div style="font-size:11px;color:var(--text-muted);">Estos enlaces aparecerán como acceso directo en el portal de clientes</div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+                <i class="fab fa-instagram" style="color:#E4405F;font-size:16px;"></i> Instagram (enlace)
+              </label>
+              <input type="text" name="app_instagram" class="form-control" value="{{ app_instagram }}" placeholder="https://instagram.com/tu_taller">
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Enlace completo a tu perfil de Instagram.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+                <i class="fab fa-whatsapp" style="color:#25D366;font-size:16px;"></i> WhatsApp (número)
+              </label>
+              <input type="text" name="app_whatsapp" class="form-control" value="{{ app_whatsapp }}" placeholder="573001234567">
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Número con código de país, sin espacios ni +. Ej: 573001234567</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:40px;display:flex;gap:10px;">
+          <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

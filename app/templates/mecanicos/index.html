@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Mecánicos{% endblock %}
+{% block page_title %}Mecánicos{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Mecánicos</h2>
+    <p>{{ mecanicos|length }} mecánico(s) registrado(s)</p>
+  </div>
+  <a href="{{ url_for('mecanico.agregar') }}" class="btn-primary-mt">
+    <i class="fas fa-plus"></i> Nuevo Mecánico
+  </a>
+</div>
+<div class="card">
+  {% if mecanicos %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Especialidad</th>
+        <th>Órdenes</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mecanicos %}
+      <tr>
+        <td style="color:var(--text-dim);">{{ m.id_mecanico }}</td>
+        <td style="font-weight:700;color:var(--text);">{{ m.nombre }}</td>
+        <td>{{ m.telefono or '—' }}</td>
+        <td>
+          {% if m.especialidad %}
+          <span style="background:rgba(59,130,246,0.12);color:var(--text);font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid rgba(59,130,246,0.2);">{{ m.especialidad }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('mecanico.detalle', id=m.id_mecanico) }}" style="text-decoration:none;">
+            <span style="background:rgba(255,92,0,0.12);color:var(--naranja);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;border:1px solid rgba(255,92,0,0.2);cursor:pointer;">
+              {{ m.ordenes.count() }}
+            </span>
+          </a>
+        </td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('mecanico.editar', id=m.id_mecanico) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          <form method="POST" action="{{ url_for('mecanico.eliminar', id=m.id_mecanico) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar a {{ m.nombre }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-hard-hat"></i>
+    <p>No hay mecánicos registrados.<br/><a href="{{ url_for('mecanico.agregar') }}">Agregar el primero</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

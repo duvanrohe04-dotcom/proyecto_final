@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Catálogo{% endblock %}
+{% block page_title %}Catálogo{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Catálogo</h2>
+    <p>{{ repuestos|length }} producto(s) en inventario</p>
+  </div>
+  <a href="{{ url_for('repuesto.agregar') }}" class="btn-primary-mt">
+    <i class="fas fa-plus"></i> Nuevo Repuesto
+  </a>
+</div>
+<div class="card">
+  {% if repuestos %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Valor Unitario</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in repuestos %}
+      <tr>
+        <td style="color:var(--text-dim);">{{ r.id_repuesto }}</td>
+        <td>
+          {% if r.imagen %}
+            <div style="width:70px; height:70px; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
+              {% if r.imagen.startswith('http') %}
+                <img src="{{ r.imagen }}" style="width:100%; height:100%; object-fit:cover;"/>
+              {% else %}
+                <img src="{{ url_for('static', filename=r.imagen) }}" style="width:100%; height:100%; object-fit:cover;"/>
+              {% endif %}
+            </div>
+          {% else %}
+            <div style="width:70px; height:70px; border-radius:8px; background:var(--surface2); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:20px;">
+              <i class="fas fa-image"></i>
+            </div>
+          {% endif %}
+        </td>
+        <td style="font-weight:700;color:var(--naranja);font-family:'Barlow Condensed',sans-serif;font-size:17px;text-transform:uppercase;">{{ r.nombre }}</td>
+        <td style="font-weight:700;color:var(--naranja);font-family:'Barlow Condensed',sans-serif;font-size:16px;">${{ '{:,.0f}'.format(r.valor) }}</td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('repuesto.editar', id=r.id_repuesto) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          <form method="POST" action="{{ url_for('repuesto.eliminar', id=r.id_repuesto) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar {{ r.nombre }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-cogs"></i>
+    <p>No hay repuestos registrados.<br/><a href="{{ url_for('repuesto.agregar') }}">Agregar el primero</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

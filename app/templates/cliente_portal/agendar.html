@@ -1,0 +1,228 @@
+{% extends 'base_portal.html' %}
+{% block title %}Agendar Servicio — MotoTaller{% endblock %}
+{% block content %}
+<div class="page-title">Agendar Servicio</div>
+<div class="page-subtitle">Completa el formulario para programar tu cita en el taller</div>
+
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="p-card">
+      <div class="p-card-header">
+        <div class="p-card-header-icon"><i class="fas fa-calendar-plus"></i></div>
+        <div>
+          <div class="p-card-header-title">Datos de la cita</div>
+          <div class="p-card-header-sub">Ingresa tu información y la de tu moto</div>
+        </div>
+      </div>
+      <div class="p-card-body">
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div style="font-size:12px;font-weight:700;color:#FF5C00;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,92,0,0.2);">
+            <i class="fas fa-user me-1"></i> Tus datos
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Teléfono <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="telefono" class="form-control" required placeholder="Ej. 300 123 4567"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Dirección <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="direccion" class="form-control" required placeholder="Ej. Cra 7 # 45-20"/>
+            </div>
+          </div>
+
+          <div style="font-size:12px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin:18px 0 14px;padding-bottom:8px;border-bottom:1px solid rgba(167,139,250,0.2);">
+            <i class="fas fa-motorcycle me-1"></i> Datos de tu moto
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Placa <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="placa" class="form-control" required placeholder="Ej. ABC123" style="text-transform:uppercase;font-weight:700;letter-spacing:1px;"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Tipo de moto <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="tipo_moto" class="form-control" required placeholder="Ej. Deportiva"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Año modelo <span style="color:#ef4444;">*</span></label>
+              <input type="number" name="modelo_moto" class="form-control" required min="1990" max="2030" placeholder="Ej. 2020"/>
+            </div>
+          </div>
+
+          <div style="font-size:12px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:1px;margin:18px 0 14px;padding-bottom:8px;border-bottom:1px solid rgba(74,222,128,0.2);">
+            <i class="fas fa-tools me-1"></i> Detalles del servicio
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Describe el problema o servicio que necesitas <span style="color:#ef4444;">*</span></label>
+            <textarea name="descripcion" class="form-control" required rows="3" placeholder="Ej. Cambio de aceite, revisión de frenos, sonido extraño en el motor..."></textarea>
+          </div>
+          <div class="row g-3 mb-4">
+            <!-- FECHA -->
+            <div class="col-md-4">
+              <label class="form-label fancy-label"><i class="fas fa-calendar-alt me-1" style="color:#FF5C00;"></i> Fecha preferida <span style="color:#ef4444;">*</span></label>
+              <div class="fancy-input-wrap">
+                <div class="fancy-input-icon"><i class="fas fa-calendar-day"></i></div>
+                <input type="date" name="fecha" id="fecha-cita" class="fancy-input" required/>
+              </div>
+              <div id="fecha-error" class="fancy-error">
+                <i class="fas fa-ban"></i> Los domingos no atendemos. Elige otro día.
+              </div>
+              <div class="fancy-hint"><i class="fas fa-info-circle"></i> Lun–Sáb &bull; Mínimo 1 día de anticipación</div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const dateInput = document.getElementById('fecha-cita');
+              const errorDiv = document.getElementById('fecha-error');
+              const submitBtn = document.querySelector('button[type="submit"]');
+              const today = new Date().toISOString().split('T')[0];
+              dateInput.setAttribute('min', today);
+              dateInput.addEventListener('change', function() {
+                const date = new Date(this.value + 'T00:00:00');
+                if (date.getDay() === 0) {
+                  errorDiv.style.display = 'flex';
+                  this.closest('.fancy-input-wrap').classList.add('error');
+                  submitBtn.disabled = true;
+                } else {
+                  errorDiv.style.display = 'none';
+                  this.closest('.fancy-input-wrap').classList.remove('error');
+                  this.closest('.fancy-input-wrap').classList.add('success');
+                  submitBtn.disabled = false;
+                }
+              });
+            });
+            </script>
+
+            <!-- HORA -->
+            <div class="col-md-4">
+              <label class="form-label fancy-label"><i class="fas fa-clock me-1" style="color:#a78bfa;"></i> Hora <span style="color:#ef4444;">*</span></label>
+              <div class="fancy-input-wrap">
+                <div class="fancy-input-icon" style="background:rgba(167,139,250,0.15);color:#a78bfa;"><i class="fas fa-clock"></i></div>
+                <select name="hora" class="fancy-input" required>
+                  <option value="">— Elige tu hora —</option>
+                  {% for h in horas %}
+                  <option value="{{ h }}">{{ h }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="fancy-hint"><i class="fas fa-info-circle"></i> Cada cita dura aprox. 1 hora</div>
+            </div>
+
+            <!-- MECÁNICO -->
+            <div class="col-md-4">
+              <label class="form-label fancy-label"><i class="fas fa-hard-hat me-1" style="color:#4ade80;"></i> Mecánico <span style="color:#ef4444;">*</span></label>
+              <div class="fancy-input-wrap">
+                <div class="fancy-input-icon" style="background:rgba(74,222,128,0.15);color:#4ade80;"><i class="fas fa-hard-hat"></i></div>
+                <select name="id_mecanico" class="fancy-input" required>
+                  <option value="">— Seleccionar —</option>
+                  {% for m in mecanicos %}
+                  <option value="{{ m.id_mecanico }}">{{ m.nombre }}{% if m.especialidad %} — {{ m.especialidad }}{% endif %}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="fancy-hint"><i class="fas fa-info-circle"></i> Asignación según disponibilidad</div>
+            </div>
+          </div>
+
+          <style>
+          .fancy-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:block; }
+          .fancy-input-wrap {
+            display:flex; align-items:center;
+            background:var(--input-bg);
+            border:1.5px solid var(--border);
+            border-radius:12px;
+            overflow:hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+          }
+          .fancy-input-wrap:focus-within {
+            border-color: #FF5C00;
+            box-shadow: 0 0 0 3px rgba(255,92,0,0.15);
+          }
+          .fancy-input-wrap.error { border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,0.12); }
+          .fancy-input-wrap.success { border-color:#4ade80; box-shadow:0 0 0 3px rgba(74,222,128,0.12); }
+          .fancy-input-icon {
+            width:42px; min-width:42px; height:42px;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(255,92,0,0.12); color:#FF5C00;
+            font-size:14px; border-right:1px solid var(--border);
+            flex-shrink:0;
+          }
+          .fancy-input {
+            flex:1; border:none; background:transparent;
+            color:var(--text); font-size:13.5px; font-weight:600;
+            padding:10px 14px; outline:none;
+            min-width:0;
+          }
+          .fancy-input option { background:var(--input-bg); color:var(--text); }
+          .fancy-error {
+            display:none; align-items:center; gap:6px;
+            color:#ef4444; font-size:11px; font-weight:600; margin-top:6px;
+          }
+          .fancy-hint {
+            font-size:10.5px; color:var(--text-muted); margin-top:5px;
+            display:flex; align-items:center; gap:4px;
+          }
+          .fancy-hint i { color: var(--naranja); font-size:9px; }
+          /* native date picker color fix */
+          input[type="date"]::-webkit-calendar-picker-indicator { filter: opacity(0.5); cursor:pointer; }
+          [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.4); }
+          </style>
+
+          <button type="submit" class="btn-orange w-100">
+            <i class="fas fa-calendar-check"></i> Confirmar Cita
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="p-card mb-3">
+      <div class="p-card-body" style="padding:22px;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-clock" style="color:#FF5C00;"></i> Horarios de atención
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);">
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+            <span>Lunes – Viernes</span><strong style="color:var(--text);">8:00 AM – 6:00 PM</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+            <span>Sábado</span><strong style="color:var(--text);">8:00 AM – 2:00 PM</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;">
+            <span>Domingo</span><strong style="color:#ef4444;">Cerrado</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-card mb-3">
+      <div class="p-card-body" style="padding:22px;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-star" style="color:#FF5C00;"></i> Servicios disponibles
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);display:flex;flex-direction:column;gap:8px;">
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Cambio de aceite y filtros</div>
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Revisión de frenos</div>
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Ajuste y sincronización</div>
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Revisión eléctrica</div>
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Cambio de llantas</div>
+          <div><i class="fas fa-check-circle me-2" style="color:#4ade80;"></i>Diagnóstico general</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-card">
+      <div class="p-card-body" style="padding:22px;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-info-circle" style="color:#FF5C00;"></i> Ten en cuenta
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.7;">
+          <div>📅 Agenda con <strong style="color:var(--text);">mínimo 1 día</strong> de anticipación</div>
+          <div>⏰ Cada cita tiene duración de <strong style="color:var(--text);">1 hora</strong></div>
+          <div>📞 Te contactaremos para <strong style="color:var(--text);">confirmar</strong> tu cita</div>
+          <div>🔧 Trae tu moto <strong style="color:var(--text);">15 minutos antes</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

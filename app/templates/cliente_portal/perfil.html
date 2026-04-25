@@ -1,0 +1,122 @@
+{% extends 'base_portal.html' %}
+{% block title %}Mi Perfil — MotoTaller{% endblock %}
+{% block content %}
+<div class="page-title">Mi Perfil</div>
+<div class="page-subtitle">Administra tu información personal y contraseña</div>
+
+<div class="row g-4">
+
+  <!-- DATOS PERSONALES -->
+  <div class="col-lg-6">
+    <div class="p-card">
+      <div class="p-card-header">
+        <div class="p-card-header-icon"><i class="fas fa-user-edit"></i></div>
+        <div>
+          <div class="p-card-header-title">Datos Personales</div>
+          <div class="p-card-header-sub">Actualiza tu nombre, teléfono y dirección</div>
+        </div>
+      </div>
+      <div class="p-card-body">
+        <!-- Info usuario -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:rgba(255,92,0,0.06);border:1px solid rgba(255,92,0,0.15);border-radius:10px;margin-bottom:22px;">
+          <div style="width:48px;height:48px;background:linear-gradient(135deg,#FF5C00,#FF8A00);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;">
+            {{ current_user.nombre_usuario[0].upper() }}
+          </div>
+          <div>
+            <div style="font-weight:700;color:var(--text);font-size:15px;">{{ current_user.nombre_completo }}</div>
+            <div style="font-size:12px;color:var(--text-muted);">@{{ current_user.nombre_usuario }}</div>
+            <div style="font-size:12px;color:var(--naranja);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Cliente</div>
+          </div>
+        </div>
+
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <input type="hidden" name="accion" value="datos"/>
+          <div style="display:flex;gap:12px;">
+            <div class="mb-3" style="flex:1;">
+              <label class="form-label">Nombre</label>
+              <input type="text" name="nombre" class="form-control"
+                value="{{ current_user.nombre if current_user.nombre else '' }}"
+                placeholder="Ej. Carlos"/>
+            </div>
+            <div class="mb-3" style="flex:1;">
+              <label class="form-label">Apellido</label>
+              <input type="text" name="apellido" class="form-control"
+                value="{{ current_user.apellido if current_user.apellido else '' }}"
+                placeholder="Ej. Pérez"/>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input type="text" name="telefono" class="form-control"
+              value="{{ cliente.telefono if cliente and cliente.telefono else '' }}"
+              placeholder="Ej. 3001234567"/>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Dirección</label>
+            <input type="text" name="direccion" class="form-control"
+              value="{{ cliente.direccion if cliente and cliente.direccion else '' }}"
+              placeholder="Ej. Cra 15 #45-20, Bogotá"/>
+          </div>
+          <button type="submit" class="btn-orange w-100">
+            <i class="fas fa-save me-2"></i> Guardar Cambios
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMBIAR CONTRASEÑA -->
+  <div class="col-lg-6">
+    <div class="p-card">
+      <div class="p-card-header">
+        <div class="p-card-header-icon"><i class="fas fa-lock"></i></div>
+        <div>
+          <div class="p-card-header-title">Cambiar Contraseña</div>
+          <div class="p-card-header-sub">Mínimo 6 caracteres</div>
+        </div>
+      </div>
+      <div class="p-card-body">
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <input type="hidden" name="accion" value="password"/>
+          <div class="mb-3">
+            <label class="form-label">Contraseña actual</label>
+            <div style="position:relative;">
+              <input type="password" name="password_actual" id="pwd-actual" class="form-control" required placeholder="Tu contraseña actual" style="padding-right:42px;"/>
+              <button type="button" onclick="togglePwd('pwd-actual',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nueva contraseña</label>
+            <div style="position:relative;">
+              <input type="password" name="password_nueva" id="pwd-nueva" class="form-control" required placeholder="Mínimo 6 caracteres" style="padding-right:42px;"/>
+              <button type="button" onclick="togglePwd('pwd-nueva',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Confirmar nueva contraseña</label>
+            <div style="position:relative;">
+              <input type="password" name="password_confirmar" id="pwd-confirmar" class="form-control" required placeholder="Repite la nueva contraseña" style="padding-right:42px;"/>
+              <button type="button" onclick="togglePwd('pwd-confirmar',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <button type="submit" class="btn-outline w-100" style="justify-content:center;">
+            <i class="fas fa-key me-2"></i> Actualizar Contraseña
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function togglePwd(id, btn) {
+  const input = document.getElementById(id);
+  const isText = input.type === 'text';
+  input.type = isText ? 'password' : 'text';
+  btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+</script>
+{% endblock %}

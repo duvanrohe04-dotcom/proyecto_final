@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Órdenes de Catálogo{% endblock %}
+{% block page_title %}Órdenes de Catálogo{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Órdenes de Catálogo</h2>
+    <p>Gestiona las solicitudes de compra directa de los clientes</p>
+  </div>
+</div>
+
+<div class="card">
+  {% if solicitudes %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Cliente</th>
+        <th>Productos</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in solicitudes %}
+      <tr>
+        <td style="color:var(--text-dim);">#{{ s.id_compra }}</td>
+        <td>{{ s.fecha.strftime('%d/%m/%Y') }}</td>
+        <td style="font-weight:600;color:var(--text);">{{ s.cliente.nombre if s.cliente else 'Cliente no registrado' }}</td>
+        <td>
+          {% for item in s.repuestos %}
+          <div style="font-size:12px;color:var(--text-muted);">
+            {{ item.cantidad }}x {{ item.repuesto.nombre }}
+          </div>
+          {% endfor %}
+        </td>
+        <td style="font-weight:700;color:var(--naranja);font-family:'Barlow Condensed',sans-serif;font-size:16px;">
+          ${{ '{:,.0f}'.format(s.total) }}
+        </td>
+        <td>
+          {% if s.estado == 'solicitud' %}
+            <span class="badge-mt badge-pendiente">Solicitud</span>
+          {% elif s.estado == 'entregado' %}
+            <span class="badge-mt badge-completado">Entregado</span>
+          {% else %}
+            <span class="badge-mt badge-cancelado">Cancelado</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right;">
+          {% if s.estado == 'solicitud' %}
+          <div style="display:flex;gap:5px;justify-content:flex-end;">
+            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', id=s.id_compra, nuevo_estado='entregado') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn-primary-mt" style="padding:5px 12px;font-size:11px;background:#22c55e;" title="Marcar como entregado y facturar">
+                <i class="fas fa-check me-1"></i> Entregar
+              </button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', id=s.id_compra, nuevo_estado='cancelado') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn-danger-mt" style="padding:5px 12px;font-size:11px;" title="Cancelar pedido">
+                <i class="fas fa-times me-1"></i> Cancelar
+              </button>
+            </form>
+          </div>
+          {% elif s.estado == 'entregado' and s.factura %}
+            <a href="{{ url_for('factura.ver', id=s.factura.id_factura) }}" style="text-decoration:none;font-size:11px;color:var(--naranja);font-weight:600;" title="Ver factura">
+              Factura #{{ s.factura.id_factura }} <i class="fas fa-external-link-alt" style="font-size:8px;"></i>
+            </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-shopping-bag"></i>
+    <p>No hay solicitudes de compra pendientes.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

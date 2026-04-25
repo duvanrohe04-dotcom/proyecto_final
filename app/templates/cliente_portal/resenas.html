@@ -1,0 +1,190 @@
+{% extends 'base_portal.html' %}
+{% block title %}Reseñas — MotoTaller{% endblock %}
+{% block content %}
+<div class="page-title">Reseñas del Taller</div>
+<div class="page-subtitle">Comparte tu experiencia y conoce la opinión de otros clientes</div>
+
+<div class="row g-4">
+  <!-- FORMULARIO -->
+  <div class="col-lg-5">
+    <div class="p-card review-form-card">
+      <div class="p-card-body" style="padding:28px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+          <div style="width:48px;height:48px;background:linear-gradient(135deg,#FF5C00,#FF8A00);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(255,92,0,0.3);">
+            <i class="fas fa-pen-fancy" style="color:#fff;font-size:18px;"></i>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--text);">Deja tu Reseña</div>
+            <div style="font-size:12px;color:var(--text-muted);">Tu opinión nos ayuda a mejorar</div>
+          </div>
+        </div>
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <!-- ESTRELLAS INTERACTIVAS -->
+          <div style="margin-bottom:20px;">
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:10px;">¿Cómo fue tu experiencia?</label>
+            <div class="star-selector" id="star-selector">
+              {% for i in range(1,6) %}
+              <button type="button" class="star-btn" data-value="{{ i }}" onclick="setStars({{ i }})">
+                <i class="fas fa-star"></i>
+              </button>
+              {% endfor %}
+              <span class="star-label" id="star-label">Selecciona</span>
+            </div>
+            <input type="hidden" name="estrellas" id="estrellas-input" value="5">
+          </div>
+          <!-- COMENTARIO -->
+          <div style="margin-bottom:20px;">
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:8px;">Tu comentario</label>
+            <textarea name="comentario" class="form-control" rows="4" required placeholder="Cuéntanos sobre tu experiencia en el taller..." style="resize:none;"></textarea>
+          </div>
+          <button type="submit" class="btn-orange w-100" style="padding:14px;font-size:14px;font-weight:800;letter-spacing:0.5px;border-radius:12px;">
+            <i class="fas fa-paper-plane me-2"></i> Publicar Reseña
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    {% if resenas %}
+    <div class="p-card mt-3">
+      <div class="p-card-body" style="padding:22px;text-align:center;">
+        {% set avg = (resenas | map(attribute='estrellas') | sum) / (resenas | length) %}
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--naranja);line-height:1;">{{ "%.1f"|format(avg) }}</div>
+        <div style="margin:8px 0;">
+          {% for i in range(1,6) %}
+            {% if i <= avg|int %}
+              <i class="fas fa-star" style="color:#facc15;font-size:18px;"></i>
+            {% elif i - avg < 1 %}
+              <i class="fas fa-star-half-alt" style="color:#facc15;font-size:18px;"></i>
+            {% else %}
+              <i class="far fa-star" style="color:#facc15;font-size:18px;"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);font-weight:600;">{{ resenas|length }} reseña{{ 's' if resenas|length != 1 }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- LISTA DE RESEÑAS -->
+  <div class="col-lg-7">
+    {% if resenas %}
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      {% for r in resenas %}
+      <div class="p-card review-card" style="animation: fadeInUp 0.4s ease {{ loop.index * 0.06 }}s both;">
+        <div class="p-card-body" style="padding:22px 24px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <!-- AVATAR -->
+            <div class="review-avatar">
+              {{ r.usuario.nombre_usuario[0]|upper }}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+                <div>
+                  <span style="font-weight:700;color:var(--text);font-size:15px;">{{ r.usuario.nombre_usuario }}</span>
+                  <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">{{ r.fecha.strftime('%d/%m/%Y') }}</span>
+                </div>
+                <div>
+                  {% for i in range(1,6) %}
+                    <i class="fas fa-star" style="font-size:12px;color:{% if i <= r.estrellas %}#facc15{% else %}rgba(255,255,255,0.1){% endif %};"></i>
+                  {% endfor %}
+                </div>
+              </div>
+              <p style="font-size:14px;color:var(--text-muted);line-height:1.6;margin:0;">{{ r.comentario }}</p>
+              {% if r.id_usuario == current_user.id %}
+              <form method="POST" action="{{ url_for('portal.eliminar_resena', id=r.id_resena) }}" style="margin-top:10px;" onsubmit="return confirm('¿Eliminar tu reseña?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" style="background:transparent;border:none;color:#ef4444;font-size:11px;font-weight:600;cursor:pointer;padding:0;"><i class="fas fa-trash me-1"></i> Eliminar</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-card">
+      <div class="p-card-body" style="text-align:center;padding:60px 20px;">
+        <div style="width:72px;height:72px;background:rgba(255,92,0,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fas fa-comments" style="color:var(--naranja);font-size:28px;"></i>
+        </div>
+        <div style="font-weight:700;color:var(--text);font-size:16px;margin-bottom:8px;">Sé el primero en opinar</div>
+        <div style="color:var(--text-muted);font-size:14px;">Aún no hay reseñas. ¡Tu opinión es muy valiosa!</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+/* ── STAR SELECTOR ── */
+.star-selector {
+  display:flex; align-items:center; gap:6px;
+}
+.star-btn {
+  width:44px; height:44px;
+  background:var(--surface2);
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  color:rgba(255,255,255,0.15);
+  font-size:20px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: all 0.2s ease;
+}
+.star-btn:hover, .star-btn.active {
+  color:#facc15;
+  background:rgba(250,204,21,0.08);
+  border-color:rgba(250,204,21,0.4);
+  transform:scale(1.12);
+  box-shadow: 0 0 12px rgba(250,204,21,0.2);
+}
+.star-label {
+  font-size:12px;
+  font-weight:700;
+  color:var(--naranja);
+  margin-left:8px;
+  transition: opacity 0.2s;
+}
+
+/* ── REVIEW CARDS ── */
+.review-card { transition: transform 0.2s, box-shadow 0.2s; }
+.review-card:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,0.15); }
+
+.review-avatar {
+  width:44px; height:44px; min-width:44px;
+  background:linear-gradient(135deg,#FF5C00,#FF8A00);
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:20px; color:#fff;
+  box-shadow: 0 4px 12px rgba(255,92,0,0.3);
+}
+
+.review-form-card {
+  border:1.5px solid rgba(255,92,0,0.2) !important;
+  box-shadow:0 0 0 3px rgba(255,92,0,0.06);
+}
+
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+</style>
+
+<script>
+const labels = ['', 'Muy mala', 'Mala', 'Regular', 'Buena', '¡Excelente!'];
+function setStars(val) {
+  document.getElementById('estrellas-input').value = val;
+  document.getElementById('star-label').textContent = labels[val];
+  document.querySelectorAll('.star-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i < val);
+  });
+}
+// Default 5 estrellas
+document.addEventListener('DOMContentLoaded', () => setStars(5));
+</script>
+{% endblock %}

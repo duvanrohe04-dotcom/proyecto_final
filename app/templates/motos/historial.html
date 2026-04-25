@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Historial: {{ moto.placa }}{% endblock %}
+{% block page_title %}Historial Técnico de la Moto{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Historial: <span class="placa-tag" style="font-size:22px;padding:5px 15px;">{{ moto.placa }}</span></h2>
+    <p>Propietario: <strong>{{ moto.cliente.nombre }}</strong> | {{ moto.tipo or 'N/A' }} | Modelo: {{ moto.modelo or 'N/A' }}</p>
+  </div>
+  <a href="{{ url_for('moto.index') }}" class="btn-secondary-mt">
+    <i class="fas fa-arrow-left"></i> Volver a Motos
+  </a>
+</div>
+
+<div class="card">
+  {% if ordenes %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>ID Cita</th>
+        <th>Fecha y Hora</th>
+        <th>Mecánico</th>
+        <th>Servicio/Descripción</th>
+        <th>Estado</th>
+        <th>Valor Total</th>
+        <th>Factura</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in ordenes %}
+      <tr>
+        <td style="color:var(--text-dim);">#{{ o.id_servicio }}</td>
+        <td>
+          <div style="font-weight:600;color:var(--text);">{{ o.fecha.strftime('%d/%m/%Y') }}</div>
+          <div style="font-size:11px;color:var(--naranja);font-weight:700;">{{ o.hora }}</div>
+        </td>
+        <td>{{ o.mecanico.nombre if o.mecanico else '—' }}</td>
+        <td>
+          <div style="font-size:13px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ o.descripcion }}">
+            {{ o.descripcion or 'Sin descripción' }}
+          </div>
+        </td>
+        <td>
+          <span class="badge-mt badge-{{ o.estado }}">{{ o.estado.replace('_',' ').title() }}</span>
+        </td>
+        <td style="font-weight:700;color:var(--naranja);font-family:'Barlow Condensed',sans-serif;font-size:16px;">
+          {% if o.estado == 'completado' %}
+            {{ '$' + '{:,.0f}'.format(o.valor) if o.valor else '—' }}
+          {% else %}
+            <span style="font-size:10px;color:var(--text-dim);font-family:'Inter',sans-serif;font-weight:400;">Pendiente</span>
+          {% endif %}
+        </td>
+        <td>
+          {% set fact = o.facturas.first() %}
+          {% if fact %}
+            <a href="{{ url_for('factura.ver', id=fact.id_factura) }}" style="text-decoration:none;display:flex;flex-direction:column;gap:2px;" title="Ver factura completa">
+              <span style="font-size:11px;font-weight:700;color:var(--naranja);">#{{ fact.id_factura }} <i class="fas fa-external-link-alt" style="font-size:8px;"></i></span>
+              <span style="font-size:10px;color:var(--text-muted);">{{ fact.fecha.strftime('%d/%m/%Y') }}</span>
+            </a>
+          {% else %}
+            <span style="font-size:11px;color:var(--text-dim);">Sin factura</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-history"></i>
+    <p>Esta moto no tiene registros de servicios previos en el taller.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

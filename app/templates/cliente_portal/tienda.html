@@ -1,0 +1,200 @@
+{% extends 'base_portal.html' %}
+{% block title %}Catálogo — MotoTaller{% endblock %}
+{% block content %}
+<div class="page-title">Catálogo de Productos</div>
+<div class="page-subtitle">Adquiere tus productos de forma directa y recógelos en el taller</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="p-card">
+      <div class="p-card-header">
+        <div class="p-card-header-icon"><i class="fas fa-th-large"></i></div>
+        <div>
+          <div class="p-card-header-title">Catálogo de Productos</div>
+          <div class="p-card-header-sub">Selecciona lo que necesites para tu moto</div>
+        </div>
+      </div>
+      <div class="p-card-body" style="padding: 20px;">
+        <form id="tienda-form" method="POST" action="{{ url_for('portal.realizar_compra') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:15px;">
+            {% if repuestos %}
+              {% for r in repuestos %}
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden;" class="product-card">
+                <div style="width:100%;aspect-ratio:1;background:rgba(0,0,0,0.2);border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.03);">
+                  {% if r.imagen %}
+                    {% if r.imagen.startswith('http') %}
+                      <img src="{{ r.imagen }}" alt="{{ r.nombre }}" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                      <img src="{{ url_for('static', filename=r.imagen) }}" alt="{{ r.nombre }}" style="width:100%;height:100%;object-fit:cover;">
+                    {% endif %}
+                  {% else %}
+                    <i class="fas fa-tools" style="font-size:32px;color:rgba(255,255,255,0.05);"></i>
+                  {% endif %}
+                </div>
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.nombre }}</div>
+                <div style="font-size:16px;font-weight:800;color:var(--naranja);margin-bottom:12px;">${{ "{:,.0f}".format(r.valor) }}</div>
+                
+                <div class="qty-stepper" id="stepper-{{ r.id_repuesto }}">
+                  <button type="button" class="qty-btn qty-minus" onclick="changeQty('{{ r.id_repuesto }}', -1)"><i class="fas fa-minus"></i></button>
+                  <input type="number" name="repuesto_{{ r.id_repuesto }}" id="qty-{{ r.id_repuesto }}" min="0" max="99" value="0" class="qty-input" readonly>
+                  <button type="button" class="qty-btn qty-plus" onclick="changeQty('{{ r.id_repuesto }}', 1)"><i class="fas fa-plus"></i></button>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-dim);">
+                <i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:12px;opacity:0.2;"></i>
+                No hay productos disponibles.
+              </div>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div style="position: sticky; top: 80px;">
+      <div class="p-card mb-3">
+        <div class="p-card-header">
+          <div class="p-card-header-icon"><i class="fas fa-truck"></i></div>
+          <div class="p-card-header-title">Finalizar Pedido</div>
+        </div>
+        <div class="p-card-body" style="padding: 20px;">
+          <div class="mb-3">
+            <label class="form-label" style="font-size:11px;">TELÉFONO DE CONTACTO</label>
+            <input type="text" form="tienda-form" name="telefono" class="form-control" value="{{ cliente.telefono if cliente else '' }}" required style="font-weight:600;">
+          </div>
+          <div class="mb-4">
+            <label class="form-label" style="font-size:11px;">DIRECCIÓN DE REFERENCIA</label>
+            <input type="text" form="tienda-form" name="direccion" class="form-control" value="{{ cliente.direccion if cliente else '' }}" required style="font-weight:600;">
+          </div>
+          
+          <div style="background:rgba(255,92,0,0.05);border-radius:10px;padding:15px;border:1px solid rgba(255,92,0,0.1);margin-bottom:20px;">
+            <div style="font-size:12px;color:var(--naranja);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px;">
+              <i class="fas fa-info-circle"></i> INFO PEDIDO
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);line-height:1.4;margin:0;">
+              Tu solicitud será procesada por el taller. El pago se realiza al momento de la entrega física de los repuestos.
+            </p>
+          </div>
+
+          <button type="submit" form="tienda-form" class="btn-orange w-100" style="padding:15px;font-size:14px;font-weight:800;letter-spacing:1px;">
+            <i class="fas fa-check-circle me-2"></i> CONFIRMAR COMPRA
+          </button>
+        </div>
+      </div>
+      
+      <div class="p-card">
+        <div class="p-card-body" style="padding:15px;text-align:center;font-size:11px;color:var(--text-dim);">
+          <i class="fas fa-shield-alt me-1"></i> Compra segura — MotoTaller Pro v2.0
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.product-card {
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+.product-card:hover {
+  background: rgba(255,92,0,0.04) !important;
+  border-color: rgba(255,92,0,0.35) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(255,92,0,0.15);
+}
+.product-card img { transition: transform 0.5s ease; }
+.product-card:hover img { transform: scale(1.08); }
+.product-card.has-qty {
+  border-color: rgba(255,92,0,0.6) !important;
+  box-shadow: 0 0 0 2px rgba(255,92,0,0.25), 0 8px 24px rgba(255,92,0,0.2);
+}
+
+/* ── QUANTITY STEPPER ── */
+.qty-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.qty-stepper.active {
+  border-color: #FF5C00;
+  box-shadow: 0 0 0 3px rgba(255,92,0,0.18);
+}
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.qty-btn:hover { background: rgba(255,92,0,0.12); color: #FF5C00; }
+.qty-btn:active { background: rgba(255,92,0,0.22); }
+.qty-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-anim 0.4s linear;
+  background: rgba(255,92,0,0.3);
+  width: 60px; height: 60px;
+  top: 50%; left: 50%;
+  margin-top: -30px; margin-left: -30px;
+  pointer-events: none;
+}
+@keyframes ripple-anim { to { transform: scale(2); opacity: 0; } }
+.qty-input {
+  flex: 1;
+  width: 0;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 0;
+  outline: none;
+  min-width: 0;
+  -moz-appearance: textfield;
+}
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
+<script>
+function changeQty(id, delta) {
+  const input = document.getElementById('qty-' + id);
+  const stepper = document.getElementById('stepper-' + id);
+  const card = stepper.closest('.product-card');
+  let val = parseInt(input.value) || 0;
+  val = Math.max(0, Math.min(99, val + delta));
+  input.value = val;
+  // visual state
+  if (val > 0) {
+    stepper.classList.add('active');
+    card.classList.add('has-qty');
+  } else {
+    stepper.classList.remove('active');
+    card.classList.remove('has-qty');
+  }
+  // ripple on clicked button
+  const btn = event.currentTarget;
+  const r = document.createElement('span');
+  r.classList.add('ripple');
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+</script>
+{% endblock %}

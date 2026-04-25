@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Agenda{% endblock %}
+{% block page_title %}Agenda{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Agenda</h2>
+    <p>{{ ordenes|length }} cita(s) registrada(s)</p>
+  </div>
+  <a href="{{ url_for('orden.agregar') }}" class="btn-primary-mt">
+    <i class="fas fa-plus"></i> Nueva Cita
+  </a>
+</div>
+<div class="card mb-4" style="padding: 15px;">
+  <form method="GET" action="{{ url_for('orden.index') }}" class="row g-2 align-items-center">
+    <div class="col-auto" style="flex-grow: 1;">
+      <div class="input-group">
+        <span class="input-group-text" style="background: var(--surface2); border-color: var(--border); color: var(--text-dim);">
+          <i class="fas fa-search"></i>
+        </span>
+        <input type="text" id="search-input" name="q" class="form-control" placeholder="Buscar cliente por nombre..." value="{{ search_query }}" list="clientes-list" style="background: var(--surface2); border-color: var(--border); color: var(--text);">
+        <datalist id="clientes-list">
+          {% for nombre in nombres_clientes %}
+            <option value="{{ nombre }}">
+          {% endfor %}
+        </datalist>
+      </div>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn-primary-mt" style="padding: 8px 20px;">Buscar</button>
+      {% if search_query %}
+        <a href="{{ url_for('orden.index') }}" class="btn-primary-mt" style="background: var(--surface2); border-color: var(--border); color: var(--text-dim); text-decoration: none; display: inline-block; padding: 8px 15px;">
+          <i class="fas fa-times"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  {% if ordenes %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th style="width:80px;">ID Cita</th>
+        <th>Moto</th>
+        <th>Cliente</th>
+        <th>Mecánico</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Valor</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="ordenes-table-body">
+      {% for o in ordenes %}
+      <tr>
+        <td style="color:var(--text-dim);">{{ o.id_servicio }}</td>
+        <td>
+          <span class="placa-tag">{{ o.moto.placa }}</span>
+        </td>
+        <td class="client-name" style="color:var(--text);font-weight:500;">{{ o.moto.cliente.nombre }}</td>
+        <td>{{ o.mecanico.nombre if o.mecanico else '—' }}</td>
+        <td style="color:var(--text-muted);font-size:12px;">
+          {{ o.fecha.strftime('%d/%m/%Y') }}<br/>
+          <span style="color:var(--naranja);font-weight:700;">{{ o.hora }}</span>
+        </td>
+        <td><span class="badge-mt badge-{{ o.estado }}">{{ o.estado.replace('_',' ').title() }}</span></td>
+        <td style="font-weight:700;color:var(--naranja);">
+          {% if o.estado == 'completado' %}
+            {{ '$' + '{:,.0f}'.format(o.valor) if o.valor else '—' }}
+          {% else %}
+            <span style="color:var(--text-dim);font-weight:400;font-size:11px;">Pendiente</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('orden.detalle', id=o.id_servicio) }}" class="action-btn view" title="Ver"><i class="fas fa-eye"></i></a>
+          <a href="{{ url_for('orden.editar', id=o.id_servicio) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          <form method="POST" action="{{ url_for('orden.eliminar', id=o.id_servicio) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar orden #{{ o.id_servicio }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-clipboard-list"></i>
+    <p>No hay órdenes registradas.<br/><a href="{{ url_for('orden.agregar') }}">Crear la primera</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.getElementById('search-input').addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#ordenes-table-body tr');
+    
+    rows.forEach(row => {
+        const clientName = row.querySelector('.client-name').textContent.toLowerCase();
+        if (clientName.includes(filter)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

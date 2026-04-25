@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Factura{% endblock %}
+{% block page_title %}Nueva Factura{% endblock %}
+{% block content %}
+<div style="max-width:560px;">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-file-invoice-dollar"></i> Nueva Factura</div>
+    <div class="card-body-pad">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="mb-3">
+          <label class="form-label">Cliente</label>
+          <select name="id_cliente" class="form-select">
+            <option value="">— Seleccionar cliente —</option>
+            {% for c in clientes %}
+            <option value="{{ c.id_cliente }}" {{ 'selected' if factura and factura.id_cliente == c.id_cliente }}>{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Orden de Servicio</label>
+          <select name="id_servicio" class="form-select">
+            <option value="">— Seleccionar orden —</option>
+            {% for o in ordenes %}
+            <option value="{{ o.id_servicio }}" {{ 'selected' if factura and factura.id_servicio == o.id_servicio }}>
+              #{{ o.id_servicio }} — {{ o.moto.placa }} ({{ o.fecha.strftime('%d/%m/%Y') }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Fecha <span style="color:#f87171;">*</span></label>
+          <input type="date" name="fecha" class="form-control" required
+            value="{{ factura.fecha.isoformat() if factura else '' }}"/>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Total ($) <span style="color:#f87171;">*</span></label>
+          <input type="number" name="total" class="form-control" min="0" step="1000" required
+            value="{{ factura.total if factura else '' }}" placeholder="0"/>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar</button>
+          <a href="{{ url_for('factura.index') }}" class="btn-secondary-mt">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

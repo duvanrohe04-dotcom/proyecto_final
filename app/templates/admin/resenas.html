@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Reseñas — Admin{% endblock %}
+{% block page_title %}Reseñas{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Reseñas de Clientes</h2>
+    <p>{{ resenas|length }} reseña{{ 's' if resenas|length != 1 }} registrada{{ 's' if resenas|length != 1 }}</p>
+  </div>
+  {% if resenas %}
+  <form method="POST" action="{{ url_for('admin.eliminar_todas_resenas') }}" onsubmit="return confirm('¿Eliminar TODAS las reseñas? Esta acción no se puede deshacer.')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <button type="submit" class="btn-danger-mt"><i class="fas fa-trash-alt"></i> Eliminar todas</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if resenas %}
+<!-- ESTADÍSTICAS -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Total Reseñas</div>
+      <div class="stat-value">{{ resenas|length }}</div>
+      <i class="fas fa-comments stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Promedio</div>
+      {% set avg = (resenas | map(attribute='estrellas') | sum) / (resenas | length) %}
+      <div class="stat-value">{{ "%.1f"|format(avg) }} <span style="font-size:18px;color:#facc15;">★</span></div>
+      <i class="fas fa-star stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">5 Estrellas</div>
+      <div class="stat-value">{{ resenas|selectattr('estrellas','equalto',5)|list|length }}</div>
+      <i class="fas fa-star stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">1-2 Estrellas</div>
+      <div class="stat-value">{{ resenas|selectattr('estrellas','le',2)|list|length }}</div>
+      <i class="fas fa-star-half-alt stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th>Calificación</th>
+        <th>Comentario</th>
+        <th>Fecha</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in resenas %}
+      <tr>
+        <td style="color:var(--text-dim);">{{ r.id_resena }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7C3AED,#a78bfa);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;">
+              {{ r.usuario.nombre_usuario[0].upper() }}
+            </div>
+            <span style="font-weight:600;color:var(--text);">{{ r.usuario.nombre_usuario }}</span>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex;gap:2px;">
+            {% for i in range(1,6) %}
+              <i class="fas fa-star" style="font-size:13px;color:{% if i <= r.estrellas %}#facc15{% else %}rgba(255,255,255,0.1){% endif %};"></i>
+            {% endfor %}
+            <span style="font-size:12px;color:var(--text-muted);margin-left:6px;">({{ r.estrellas }})</span>
+          </div>
+        </td>
+        <td style="max-width:320px;">
+          <span style="font-size:13px;color:var(--text-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ r.comentario }}</span>
+        </td>
+        <td style="color:var(--text-muted);font-size:13px;white-space:nowrap;">{{ r.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td style="text-align:right;">
+          <form method="POST" action="{{ url_for('admin.eliminar_resena', id=r.id_resena) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta reseña?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <i class="fas fa-comments"></i>
+    <p>No hay reseñas registradas aún.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

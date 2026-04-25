@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ accion }} Repuesto{% endblock %}
+{% block page_title %}{{ accion }} Repuesto{% endblock %}
+{% block content %}
+<div style="max-width:480px;">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-cogs"></i> {{ accion }} Repuesto</div>
+    <div class="card-body-pad">
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="mb-3">
+          <label class="form-label">Nombre del repuesto <span style="color:#f87171;">*</span></label>
+          <input type="text" name="nombre" class="form-control" required
+            value="{{ repuesto.nombre if repuesto else '' }}" placeholder="Ej. Filtro de aceite"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Valor unitario ($) <span style="color:#f87171;">*</span></label>
+          <input type="number" name="valor" class="form-control" min="0" step="500" required
+            value="{{ repuesto.valor if repuesto else '' }}" placeholder="0"/>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Imagen (Subir archivo)</label>
+          <input type="file" name="archivo_imagen" class="form-control" accept="image/*"/>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">O pegar URL de imagen</label>
+          <input type="text" name="url_imagen" class="form-control" 
+            value="{{ repuesto.imagen if repuesto and repuesto.imagen and repuesto.imagen.startswith('http') else '' }}"
+            placeholder="https://ejemplo.com/imagen.jpg"/>
+        </div>
+
+        {% if repuesto and repuesto.imagen %}
+        <div class="mb-4">
+          <label class="form-label">Imagen actual:</label>
+          <div style="width:100px; height:100px; border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+            {% if repuesto.imagen.startswith('http') %}
+              <img src="{{ repuesto.imagen }}" style="width:100%; height:100%; object-fit:cover;"/>
+            {% else %}
+              <img src="{{ url_for('static', filename=repuesto.imagen) }}" style="width:100%; height:100%; object-fit:cover;"/>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div style="display:flex;gap:10px;">
+          <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar</button>
+          <a href="{{ url_for('repuesto.index') }}" class="btn-secondary-mt">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

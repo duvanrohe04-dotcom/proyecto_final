@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}{{ accion }} Cita{% endblock %}
+{% block page_title %}{{ accion }} Cita{% endblock %}
+{% block content %}
+<div style="max-width:620px;">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-calendar-alt"></i> {{ accion }} Cita</div>
+    <div class="card-body-pad">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="mb-3">
+          <label class="form-label">Moto <span style="color:#ef4444;">*</span></label>
+          <select name="id_moto" class="form-select" required>
+            <option value="">— Seleccionar moto —</option>
+            {% for m in motos %}
+            <option value="{{ m.id_moto }}" {{ 'selected' if orden and orden.id_moto == m.id_moto }}>
+              {{ m.placa }} — {{ m.cliente.nombre }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mecánico asignado</label>
+          <select name="id_mecanico" class="form-select">
+            <option value="">— Sin asignar —</option>
+            {% for mec in mecanicos %}
+            <option value="{{ mec.id_mecanico }}" {{ 'selected' if orden and orden.id_mecanico == mec.id_mecanico }}>
+              {{ mec.nombre }}{% if mec.especialidad %} — {{ mec.especialidad }}{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Descripción del servicio</label>
+          <textarea name="descripcion" class="form-control" rows="2" placeholder="Ej. Cambio de aceite y revisión general">{{ orden.descripcion if orden and orden.descripcion else '' }}</textarea>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label">Fecha <span style="color:#ef4444;">*</span></label>
+            <input type="date" name="fecha" class="form-control" required value="{{ orden.fecha.isoformat() if orden else '' }}"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Hora</label>
+            <select name="hora" class="form-select">
+              <option value="">— Sin hora —</option>
+              {% for h in horas %}
+              <option value="{{ h }}" {{ 'selected' if orden and orden.hora == h }}>{{ h }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="form-label">Estado <span style="color:#ef4444;">*</span></label>
+            <select name="estado" class="form-select" required>
+              {% for e in estados %}
+              <option value="{{ e }}" {{ 'selected' if orden and orden.estado == e }}>{{ e.replace('_',' ').title() }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Valor Mano de Obra ($)</label>
+            <input type="number" name="valor" class="form-control" min="0" step="1000"
+              value="{{ orden.valor if orden and orden.valor else '' }}" placeholder="0"/>
+          </div>
+        </div>
+
+        <div style="margin-top:30px;padding-top:20px;border-top:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:15px;display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-box-open" style="color:var(--naranja);"></i> Productos del Catálogo Usados
+          </div>
+          <div class="table-responsive" style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+            <table class="table-mt" style="margin-bottom:0;">
+              <thead style="position:sticky;top:0;z-index:10;">
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio Unit.</th>
+                  <th style="width:120px;">Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rep in repuestos_disponibles %}
+                <tr>
+                  <td style="font-size:13px;font-weight:600;">{{ rep.nombre }}</td>
+                  <td style="color:var(--naranja);font-weight:700;">${{ '{:,.0f}'.format(rep.valor) }}</td>
+                  <td>
+                    <input type="number" name="repuesto_{{ rep.id_repuesto }}" 
+                           class="form-control form-control-sm" 
+                           min="0" value="{{ cantidades[rep.id_repuesto] if cantidades and rep.id_repuesto in cantidades else 0 }}"
+                           style="width:80px;text-align:center;padding:4px 8px;"/>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+            <i class="fas fa-info-circle"></i> El valor total se calculará sumando la mano de obra y los productos seleccionados.
+          </div>
+        </div>
+        <br/>
+        <div style="display:flex;gap:10px;">
+          <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar</button>
+          <a href="{{ url_for('orden.index') }}" class="btn-secondary-mt">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

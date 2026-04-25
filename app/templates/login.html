@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block title %}Ingresar — {{ app_name }}{% endblock %}
+{% block auth_content %}
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── TEMAS ── */
+  body.theme-dark {
+    background: #0D0D0D;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow', sans-serif; overflow: hidden; position: relative;
+  }
+  body.theme-light {
+    background: linear-gradient(135deg, #fff7f0 0%, #fff0e0 40%, #ffe8cc 100%);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow', sans-serif; overflow: hidden; position: relative;
+  }
+
+  #bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+  /* ── WRAP ── */
+  .auth-wrap { position:relative; z-index:10; width:100%; max-width:440px; padding:20px; }
+
+  /* ── BOX DARK ── */
+  body.theme-dark .auth-box {
+    background: rgba(22,22,22,0.92); backdrop-filter: blur(18px);
+    border-radius: 20px; padding: 40px 36px;
+    border: 1px solid rgba(255,92,0,0.18);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,92,0,0.06);
+  }
+  /* ── BOX LIGHT ── */
+  body.theme-light .auth-box {
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(18px);
+    border-radius: 20px; padding: 40px 36px;
+    border: 1px solid rgba(255,92,0,0.25);
+    box-shadow: 0 20px 60px rgba(255,92,0,0.15), 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  /* ── LOGO ── */
+  .auth-logo {
+    width: 130px; height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+    animation: floatLogo 5s ease-in-out infinite;
+  }
+  .auth-logo::before {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,92,0,0.4) 0%, transparent 70%);
+    z-index: -1; animation: pulseGlow 3s ease-in-out infinite;
+  }
+  .auth-logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); }
+  .auth-logo-fallback { 
+    width: 80px; height: 80px; 
+    background: linear-gradient(135deg, #FF5C00, #FF8A00);
+    border-radius: 22px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 35px rgba(255,92,0,0.5);
+    transform: rotate(-3deg);
+  }
+
+  @keyframes floatLogo {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+  }
+  .auth-logo i { color:#fff; font-size:36px; }
+
+  /* ── TITLE ── */
+  body.theme-dark .auth-title { 
+    background: linear-gradient(to bottom, #ffffff 30%, #FF8A00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  body.theme-light .auth-title { color:#FF5C00; }
+  .auth-title { 
+    text-align:center; font-family:'Barlow Condensed',sans-serif; 
+    font-size:38px; font-weight:900; margin-bottom:5px;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+
+  body.theme-dark .auth-sub { color:#555; }
+  body.theme-light .auth-sub { color:#888; }
+  .auth-sub { text-align:center; font-size:13px; margin-bottom:24px; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 24px;
+  }
+  .theme-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 20px; border: 2px solid transparent;
+    font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    text-decoration: none; letter-spacing: 0.3px;
+  }
+  .theme-btn-dark {
+    background: #1F1F1F; color: #aaa; border-color: #333;
+  }
+  .theme-btn-dark.active, body.theme-dark .theme-btn-dark {
+    background: #FF5C00; color: #fff; border-color: #FF5C00;
+    box-shadow: 0 4px 14px rgba(255,92,0,0.4);
+  }
+  .theme-btn-light {
+    background: #fff3ec; color: #FF5C00; border-color: #ffd4b8;
+  }
+  .theme-btn-light.active, body.theme-light .theme-btn-light {
+    background: #FF5C00; color: #fff; border-color: #FF5C00;
+    box-shadow: 0 4px 14px rgba(255,92,0,0.4);
+  }
+
+  /* ── TABS ── */
+  .auth-tabs { display:flex; background:#1F1F1F; border-radius:10px; padding:4px; margin-bottom:24px; }
+  body.theme-light .auth-tabs { background: #f5f0eb; }
+  .auth-tab { flex:1; text-align:center; padding:8px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; transition:all 0.15s; }
+  body.theme-dark .auth-tab { color:#555; }
+  body.theme-light .auth-tab { color:#aaa; }
+  .auth-tab.active { background:#FF5C00; color:#fff !important; }
+
+  /* ── FORM GROUPS ── */
+  .form-group { margin-bottom:18px; }
+  .form-group label { display:block; font-size:12.5px; font-weight:600; margin-bottom:7px; letter-spacing:0.3px; }
+  body.theme-dark .form-group label { color:#999; }
+  body.theme-light .form-group label { color:#555; }
+
+  .input-wrap { position:relative; }
+  .input-wrap i { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:13px; }
+  body.theme-dark .input-wrap i { color:#444; }
+  body.theme-light .input-wrap i { color:#ccc; }
+
+  .input-wrap input {
+    width:100%; padding:11px 13px 11px 38px;
+    border-radius:10px; font-size:13.5px; outline:none;
+    font-family:'Barlow',sans-serif; transition:all 0.15s; border: 1.5px solid transparent;
+  }
+  body.theme-dark .input-wrap input {
+    background:#1F1F1F; border-color:#2E2E2E; color:#e8e8e8;
+  }
+  body.theme-light .input-wrap input {
+    background:#fff8f5; border-color:#ffd4b8; color:#1a1a1a;
+  }
+  .input-wrap input:focus { border-color:#FF5C00; box-shadow:0 0 0 3px rgba(255,92,0,0.15); }
+  body.theme-dark .input-wrap input::placeholder { color:#333; }
+  body.theme-light .input-wrap input::placeholder { color:#ccc; }
+
+  /* ── SUBMIT ── */
+  .btn-submit {
+    width:100%; padding:12px;
+    background:linear-gradient(135deg,#FF5C00,#FF8A00);
+    color:#fff; border:none; border-radius:11px;
+    font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;
+    font-family:'Barlow',sans-serif; transition:all 0.15s;
+    box-shadow:0 4px 18px rgba(255,92,0,0.35);
+    letter-spacing:0.3px;
+  }
+  .btn-submit:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,92,0,0.45); }
+
+  /* ── FOOTER ── */
+  .auth-footer { text-align:center; font-size:12.5px; margin-top:20px; }
+  body.theme-dark .auth-footer { color:#444; }
+  body.theme-light .auth-footer { color:#aaa; }
+  .auth-footer a { color:#FF5C00; text-decoration:none; font-weight:600; }
+
+  /* ── ALERTS ── */
+  .alert-small { font-size:12.5px; padding:9px 13px; border-radius:8px; margin-bottom:16px; }
+  body.theme-dark .alert-small { background:rgba(239,68,68,0.12); color:#fca5a5; border:1px solid rgba(239,68,68,0.2); }
+  body.theme-light .alert-small { background:#fff0ef; color:#c0392b; border:1px solid #ffc9c9; }
+  .alert-small.alert-success { background:rgba(34,197,94,0.12)!important; color:#86efac!important; border-color:rgba(34,197,94,0.2)!important; }
+  .alert-small.alert-warning { background:rgba(250,204,21,0.12)!important; color:#fcd34d!important; border-color:rgba(250,204,21,0.2)!important; }
+  .alert-small.alert-info { background:rgba(59,130,246,0.12)!important; color:#93c5fd!important; border-color:rgba(59,130,246,0.2)!important; }
+
+  /* ── LIGHT decorative shapes ── */
+  body.theme-light .light-shape-1 {
+    position:fixed; top:-80px; right:-80px; width:350px; height:350px;
+    background:radial-gradient(circle, rgba(255,92,0,0.18) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none; z-index:0;
+  }
+  body.theme-light .light-shape-2 {
+    position:fixed; bottom:-100px; left:-80px; width:400px; height:400px;
+    background:radial-gradient(circle, rgba(255,160,50,0.12) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none; z-index:0;
+  }
+  body.theme-light .light-shape-3 {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:600px; height:600px;
+    background:radial-gradient(circle, rgba(255,92,0,0.04) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none; z-index:0;
+  }
+  body.theme-dark .light-shape-1,
+  body.theme-dark .light-shape-2,
+  body.theme-dark .light-shape-3 { display:none; }
+</style>
+
+<!-- Decorative shapes for light mode -->
+<div class="light-shape-1"></div>
+<div class="light-shape-2"></div>
+<div class="light-shape-3"></div>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      {% if app_logo %}
+        {% if app_logo.startswith('http') %}
+          <img src="{{ app_logo }}" alt="Logo">
+        {% else %}
+          <img src="{{ url_for('static', filename=app_logo.replace('static/','')) }}" alt="Logo">
+        {% endif %}
+      {% else %}
+        <div class="auth-logo-fallback"><i class="fas fa-motorcycle"></i></div>
+      {% endif %}
+    </div>
+    <div class="auth-title">{{ app_name }}</div>
+    <div class="auth-sub">Sistema de Gestión de Taller</div>
+
+    <!-- SELECTOR MODO -->
+    <div class="theme-toggle">
+      <button class="theme-btn theme-btn-dark" id="btn-dark" onclick="setTheme('dark')">
+        <i class="fas fa-moon"></i> Oscuro
+      </button>
+      <button class="theme-btn theme-btn-light" id="btn-light" onclick="setTheme('light')">
+        <i class="fas fa-sun"></i> Claro
+      </button>
+    </div>
+
+    <div class="auth-tabs">
+      <a href="{{ url_for('auth.login') }}" class="auth-tab active">Iniciar Sesión</a>
+      <a href="{{ url_for('auth.register') }}" class="auth-tab">Registrarse</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for cat, msg in messages %}
+        <div class="alert-small alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}{% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <div class="form-group">
+        <label>Nombre y Apellido</label>
+        <div class="input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" name="nombre_usuario" placeholder="Ej. Carlos Pérez" required autofocus/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Tu contraseña" required/>
+        </div>
+      </div>
+      <button type="submit" class="btn-submit"><i class="fas fa-sign-in-alt me-2"></i>Ingresar</button>
+    </form>
+    <div class="auth-footer">¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a></div>
+  </div>
+</div>
+
+<script>
+// ── TEMA ──
+function setTheme(t) {
+  document.body.className = 'theme-' + t;
+  localStorage.setItem('mt-theme', t);
+  initCanvas(t);
+}
+function loadTheme() {
+  const t = localStorage.getItem('mt-theme') || 'dark';
+  document.body.className = 'theme-' + t;
+  initCanvas(t);
+}
+
+
+// ── CANVAS ──
+let animFrame;
+function initCanvas(theme) {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, mouse = { x:-9999, y:-9999 };
+
+  const DARK_COLORS  = ['rgba(255,92,0,','rgba(255,138,0,','rgba(255,60,0,','rgba(255,200,100,','rgba(255,255,255,'];
+  const LIGHT_COLORS = ['rgba(255,92,0,','rgba(255,140,0,','rgba(255,180,80,','rgba(255,100,0,','rgba(200,80,0,'];
+  const COLORS = theme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
+  const ALPHA_MULT = theme === 'dark' ? 1 : 0.45;
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(init) {
+      this.x = Math.random()*W;
+      this.y = init ? Math.random()*H : (Math.random()>0.5?-10:H+10);
+      
+      if(theme==='light'){
+        this.vx=(Math.random()-0.5)*0.2; 
+        this.vy=-(Math.random()*0.8+0.2); 
+        this.size=Math.random()*5+3; 
+        this.color=COLORS[Math.floor(Math.random()*COLORS.length)];
+        this.alpha=(Math.random()*0.4+0.2);
+        this.life=1; this.decay=Math.random()*0.001+0.0005;
+        this.force=Math.random()*0.0001+0.00002;
+      } else {
+        this.vx=(Math.random()-0.5)*0.4; this.vy=(Math.random()-0.5)*0.4;
+        this.size=Math.random()*1.8+0.4;
+        this.color=COLORS[Math.floor(Math.random()*COLORS.length)];
+        this.alpha=(Math.random()*0.5+0.1)*ALPHA_MULT;
+        this.life=1; this.decay=Math.random()*0.002+0.001;
+        this.force=Math.random()*0.00018+0.00004;
+      }
+    }
+    update() {
+      const dx=mouse.x-this.x,dy=mouse.y-this.y;
+      const dist=Math.sqrt(dx*dx+dy*dy)||1;
+      const f=Math.min(120/dist,1.2)*this.force;
+      this.vx+=dx*f; this.vy+=dy*f;
+      
+      this.vx*=0.97; this.vy*=0.97;
+      this.x+=this.vx; this.y+=this.vy;
+      this.life-=this.decay;
+      if(this.life<=0||this.x<-20||this.x>W+20||this.y<-20||this.y>H+20) this.reset(false);
+    }
+    draw() {
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.fillStyle=this.color+(this.alpha*this.life)+')'; ctx.fill();
+    }
+  }
+
+  const particles=[];
+  for(let i=0;i<110;i++) particles.push(new Particle());
+
+  function loop() {
+    ctx.clearRect(0,0,W,H);
+    if(mouse.x>0){
+      const g=ctx.createRadialGradient(mouse.x,mouse.y,0,mouse.x,mouse.y,150);
+      const aura = theme==='dark'?'0.08':'0.06';
+      g.addColorStop(0,`rgba(255,92,0,${aura})`); g.addColorStop(1,'rgba(255,92,0,0)');
+      ctx.beginPath(); ctx.arc(mouse.x,mouse.y,150,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+    }
+    
+    if(theme==='dark'){
+      for(let i=0;i<particles.length;i++){
+        for(let j=i+1;j<particles.length;j++){
+          const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d<90){
+            const a=(1-d/90)*0.09;
+            ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y);
+            ctx.lineTo(particles[j].x,particles[j].y);
+            ctx.strokeStyle=`rgba(255,92,0,${a})`; ctx.lineWidth=0.5; ctx.stroke();
+          }
+        }
+      }
+    }
+    particles.forEach(p=>{p.update();p.draw();});
+    animFrame=requestAnimationFrame(loop);
+  }
+  loop();
+}
+loadTheme();
+</script>
+{% endblock %}

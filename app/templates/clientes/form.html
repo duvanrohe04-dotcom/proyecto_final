@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ accion }} Cliente{% endblock %}
+{% block page_title %}{{ accion }} Cliente{% endblock %}
+{% block content %}
+<div style="max-width:540px;">
+  <div class="card">
+    <div class="card-header"><i class="fas fa-user"></i> {{ accion }} Cliente</div>
+    <div class="card-body-pad">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="mb-3">
+          <label class="form-label">Nombre completo <span style="color:#f87171;">*</span></label>
+          <input type="text" name="nombre" class="form-control" required
+            value="{{ cliente.nombre if cliente else '' }}" placeholder="Ej. Carlos Pérez"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Teléfono</label>
+          <input type="text" name="telefono" class="form-control"
+            value="{{ cliente.telefono if cliente and cliente.telefono else '' }}" placeholder="Ej. 300 123 4567"/>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Dirección</label>
+          <input type="text" name="direccion" class="form-control"
+            value="{{ cliente.direccion if cliente and cliente.direccion else '' }}" placeholder="Ej. Cra 7 # 45-20, Bogotá"/>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar</button>
+          <a href="{{ url_for('cliente.index') }}" class="btn-secondary-mt">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

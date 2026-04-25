@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Motos{% endblock %}
+{% block page_title %}Motos{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Motos</h2>
+    <p>{{ motos|length }} moto(s) registrada(s)</p>
+  </div>
+  <a href="{{ url_for('moto.agregar') }}" class="btn-primary-mt">
+    <i class="fas fa-plus"></i> Nueva Moto
+  </a>
+</div>
+<div class="card">
+  {% if motos %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>Placa</th>
+        <th>Tipo</th>
+        <th>Año</th>
+        <th>Propietario</th>
+        <th>Órdenes</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in motos %}
+      <tr>
+        <td><span class="placa-tag">{{ m.placa }}</span></td>
+        <td>{{ m.tipo or '—' }}</td>
+        <td>{{ m.modelo or '—' }}</td>
+        <td style="font-weight:600;color:var(--text);">{{ m.cliente.nombre }}</td>
+        <td>
+          <a href="{{ url_for('moto.historial', id=m.id_moto) }}" style="text-decoration:none;">
+            <span style="background:rgba(255,92,0,0.12);color:var(--naranja);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;border:1px solid rgba(255,92,0,0.2);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,92,0,0.2)'" onmouseout="this.style.background='rgba(255,92,0,0.12)'" title="Ver historial completo">
+              {{ m.ordenes.count() }} <i class="fas fa-history ms-1" style="font-size:9px;"></i>
+            </span>
+          </a>
+        </td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('moto.editar', id=m.id_moto) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          <form method="POST" action="{{ url_for('moto.eliminar', id=m.id_moto) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar moto {{ m.placa }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-motorcycle"></i>
+    <p>No hay motos registradas.<br/><a href="{{ url_for('moto.agregar') }}">Registrar la primera</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

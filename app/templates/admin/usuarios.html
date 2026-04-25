@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Usuarios{% endblock %}
+{% block page_title %}Gestión de Usuarios{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Usuarios del Sistema</h2>
+    <p>{{ users|length }} usuario(s) registrado(s)</p>
+  </div>
+  <a href="{{ url_for('admin.agregar_usuario') }}" class="btn-primary-mt">
+    <i class="fas fa-user-plus"></i> Nuevo Usuario
+  </a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-label">Total Usuarios</div>
+      <div class="stat-value">{{ users|length }}</div>
+      <i class="fas fa-users stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-label">Administradores</div>
+      <div class="stat-value">{{ users|selectattr('rol','equalto','admin')|list|length }}</div>
+      <i class="fas fa-user-shield stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-label">Clientes</div>
+      <div class="stat-value">{{ users|selectattr('rol','equalto','cliente')|list|length }}</div>
+      <i class="fas fa-user stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  {% if users %}
+  <table class="table-mt">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Usuario</th>
+        <th>Rol</th>
+        <th>Acceso</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td style="color:var(--text-dim);">{{ u.id }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:{% if u.rol == 'admin' %}linear-gradient(135deg,#FF5C00,#FF8A00){% else %}linear-gradient(135deg,#7C3AED,#a78bfa){% endif %};display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;">
+              {{ u.nombre_usuario[0].upper() }}
+            </div>
+            <div>
+              <div style="font-weight:700;color:var(--text);{% if u.id == current_user.id %}color:var(--naranja);{% endif %}">
+                {{ u.nombre_usuario }}
+                {% if u.id == current_user.id %}<span style="font-size:10px;color:var(--text-dim);font-weight:400;"> (tú)</span>{% endif %}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          {% if u.rol == 'admin' %}
+          <span class="badge-mt badge-admin"><i class="fas fa-shield-alt me-1"></i>Administrador</span>
+          {% else %}
+          <span class="badge-mt badge-cliente-rol"><i class="fas fa-user me-1"></i>Cliente</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.rol == 'admin' %}
+          <span style="font-size:12px;color:var(--text-muted);">Panel completo</span>
+          {% else %}
+          <span style="font-size:12px;color:var(--text-muted);">Portal cliente</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right;">
+          <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          {% if u.id != current_user.id %}
+          <form method="POST" action="{{ url_for('admin.eliminar_usuario', id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario {{ u.nombre_usuario }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
+          </form>
+          {% else %}
+          <button class="action-btn del" disabled title="No puedes eliminarte a ti mismo" style="opacity:0.3;cursor:not-allowed;"><i class="fas fa-trash"></i></button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios registrados.</p></div>
+  {% endif %}
+</div>
+{% endblock %}
