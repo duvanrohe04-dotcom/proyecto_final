@@ -9,7 +9,7 @@ class Moto(db.Model):
     id_cliente = db.Column(db.Integer, db.ForeignKey('cliente.id_cliente', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
 
     cliente = db.relationship('Cliente', back_populates='motos')
-    ordenes = db.relationship('OrdenServicio', back_populates='moto', lazy='dynamic', cascade='all, delete-orphan')
+    ordenes = db.relationship('OrdenServicio', back_populates='moto', lazy='dynamic')
 
     def __repr__(self):
         return f'<Moto {self.placa}>'

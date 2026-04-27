@@ -7,7 +7,6 @@
     <div class="card-header"><i class="fas fa-user"></i> {{ accion }} Cliente</div>
     <div class="card-body-pad">
       <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="mb-3">
           <label class="form-label">Nombre completo <span style="color:#f87171;">*</span></label>
           <input type="text" name="nombre" class="form-control" required

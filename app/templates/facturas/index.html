@@ -37,7 +37,6 @@
         <td style="text-align:right;">
           <a href="{{ url_for('factura.ver', id=f.id_factura) }}" class="action-btn view"><i class="fas fa-eye"></i></a>
           <form method="POST" action="{{ url_for('factura.eliminar', id=f.id_factura) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar factura #{{ f.id_factura }}?')">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="action-btn del"><i class="fas fa-trash"></i></button>
           </form>
         </td>

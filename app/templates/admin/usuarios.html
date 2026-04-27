@@ -58,7 +58,7 @@
               {{ u.nombre_usuario[0].upper() }}
             </div>
             <div>
-              <div style="font-weight:700;color:var(--text);{% if u.id == current_user.id %}color:var(--naranja);{% endif %}">
+              <div style="font-weight:700;color:#fff;{% if u.id == current_user.id %}color:var(--naranja);{% endif %}">
                 {{ u.nombre_usuario }}
                 {% if u.id == current_user.id %}<span style="font-size:10px;color:var(--text-dim);font-weight:400;"> (tú)</span>{% endif %}
               </div>
@@ -83,7 +83,6 @@
           <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
           {% if u.id != current_user.id %}
           <form method="POST" action="{{ url_for('admin.eliminar_usuario', id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario {{ u.nombre_usuario }}?')">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
           </form>
           {% else %}

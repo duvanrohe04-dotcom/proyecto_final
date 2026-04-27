@@ -77,7 +77,6 @@
           <a href="{{ url_for('orden.detalle', id=o.id_servicio) }}" class="action-btn view" title="Ver"><i class="fas fa-eye"></i></a>
           <a href="{{ url_for('orden.editar', id=o.id_servicio) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
           <form method="POST" action="{{ url_for('orden.eliminar', id=o.id_servicio) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar orden #{{ o.id_servicio }}?')">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
           </form>
         </td>

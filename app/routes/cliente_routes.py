@@ -58,24 +58,10 @@ def editar(id):
 @login_required
 @admin_required
 def eliminar(id):
-    from app.models.usuario import Usuario
     cliente = Cliente.query.get_or_404(id)
-    nombre = cliente.nombre
-
-    # Eliminar usuario asociado si existe
-    usuario = Usuario.query.filter_by(nombre_usuario=nombre).first()
-    if not usuario:
-        # Intentar por nombre.apellido
-        partes = nombre.split()
-        if len(partes) >= 2:
-            nombre_usuario_gen = f"{partes[0].lower()}.{partes[-1].lower()}"
-            usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario_gen).first()
-    if usuario and not usuario.is_admin():
-        db.session.delete(usuario)
-
     db.session.delete(cliente)
     db.session.commit()
-    flash(f'Cliente "{nombre}" y todos sus datos eliminados.', 'info')
+    flash('Cliente eliminado.', 'info')
     return redirect(url_for('cliente.index'))
 
 @bp.route('/detalle/<int:id>')

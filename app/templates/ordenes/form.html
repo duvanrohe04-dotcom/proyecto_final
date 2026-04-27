@@ -7,7 +7,6 @@
     <div class="card-header"><i class="fas fa-calendar-alt"></i> {{ accion }} Cita</div>
     <div class="card-body-pad">
       <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="mb-3">
           <label class="form-label">Moto <span style="color:#ef4444;">*</span></label>
           <select name="id_moto" class="form-select" required>

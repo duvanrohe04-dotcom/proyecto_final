@@ -7,12 +7,22 @@ from app.models.orden_servicio import OrdenServicio
 from app.models.repuesto import Repuesto, OrdenRepuesto
 from app.models.factura import Factura
 from app.models.compra import Compra, CompraRepuesto
+from app.models.config import Config
 from datetime import date, timedelta
 
 app = create_app()
 
 with app.app_context():
     db.create_all()
+
+    # ── Config por defecto ──
+    if not Config.query.filter_by(key='app_name').first():
+        db.session.add(Config(key='app_name', value='MotoTaller Pro'))
+        db.session.add(Config(key='app_logo', value=None))
+        db.session.add(Config(key='app_instagram', value=''))
+        db.session.add(Config(key='app_whatsapp', value=''))
+        db.session.commit()
+        print("✅ Configuración por defecto creada")
 
     # ── Admin por defecto ──
     if not Usuario.query.filter_by(nombre_usuario='admin').first():

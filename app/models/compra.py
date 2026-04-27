@@ -4,9 +4,9 @@ from datetime import date
 class Compra(db.Model):
     __tablename__ = 'compra'
     id_compra = db.Column(db.Integer, primary_key=True)
-    id_cliente = db.Column(db.Integer, db.ForeignKey('cliente.id_cliente', onupdate='CASCADE', ondelete='SET NULL'), nullable=True, index=True)
-    fecha = db.Column(db.Date, nullable=False, default=date.today, index=True)
-    estado = db.Column(db.String(20), nullable=False, default='solicitud', index=True)
+    id_cliente = db.Column(db.Integer, db.ForeignKey('cliente.id_cliente', onupdate='CASCADE', ondelete='SET NULL'), nullable=True)
+    fecha = db.Column(db.Date, nullable=False, default=date.today)
+    estado = db.Column(db.String(20), nullable=False, default='solicitud') # solicitud, entregado, cancelado
     total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
 
     cliente = db.relationship('Cliente', back_populates='compras')

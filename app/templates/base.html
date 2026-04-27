@@ -62,7 +62,6 @@
       display:flex; flex-direction:column;
       border-right:1px solid var(--border);
       backdrop-filter:blur(12px);
-      overflow-y:auto;
     }
     .sb-brand { padding:22px 20px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; animation: floatLogo 5s ease-in-out infinite; }
     .sb-brand-icon { 
@@ -238,7 +237,6 @@
     <a href="{{ url_for('factura.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('factura') }}"><i class="fas fa-file-invoice-dollar"></i> Facturas</a>
     <div class="nav-section">Administración</div>
     <a href="{{ url_for('admin.usuarios') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.usuarios' }}"><i class="fas fa-user-shield"></i> Gestión de Usuarios</a>
-    <a href="{{ url_for('admin.resenas') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.resenas' }}"><i class="fas fa-star"></i> Reseñas</a>
     <a href="{{ url_for('admin.ajustes') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.ajustes' }}"><i class="fas fa-cog"></i> Ajustes</a>
   </nav>
   <div class="sb-footer">
@@ -260,12 +258,7 @@
 <div id="main">
   <div class="topbar">
     <span class="topbar-title">{% block page_title %}Panel{% endblock %}</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="topbar-badge"><i class="fas fa-tools me-1"></i>MotoTaller Pro</span>
-      <a href="{{ url_for('auth.logout') }}" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12.5px;font-weight:600;text-decoration:none;transition:all 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">
-        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-      </a>
-    </div>
+    <span class="topbar-badge"><i class="fas fa-tools me-1"></i>MotoTaller Pro</span>
   </div>
   <div class="page-body">
     {% with messages = get_flashed_messages(with_categories=true) %}

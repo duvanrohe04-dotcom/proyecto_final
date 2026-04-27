@@ -4,7 +4,7 @@ from app.models.usuario import Usuario
 from app.models.cliente import Cliente
 from app.models.compra import Compra
 from app.models.factura import Factura
-from app import db, allowed_file
+from app import db
 from functools import wraps
 from datetime import date
 
@@ -98,13 +98,6 @@ def eliminar_usuario(id):
         flash('No puedes eliminarte a ti mismo.', 'danger')
         return redirect(url_for('admin.usuarios'))
     nombre = user.nombre_usuario
-    # Eliminar cliente asociado si existe
-    cliente_asociado = Cliente.query.filter_by(nombre=nombre).first()
-    if not cliente_asociado and user.nombre and user.apellido:
-        nombre_completo = f"{user.nombre} {user.apellido}"
-        cliente_asociado = Cliente.query.filter_by(nombre=nombre_completo).first()
-    if cliente_asociado:
-        db.session.delete(cliente_asociado)
     db.session.delete(user)
     db.session.commit()
     flash(f'Usuario "{nombre}" eliminado.', 'info')
@@ -170,9 +163,6 @@ def ajustes():
             Config.set_val('app_name', app_name)
         
         if app_logo_file and app_logo_file.filename:
-            if not allowed_file(app_logo_file.filename):
-                flash('Formato de imagen no permitido. Usa PNG, JPG, JPEG, GIF o WEBP.', 'danger')
-                return redirect(url_for('admin.ajustes'))
             filename = secure_filename(f"logo_{app_logo_file.filename}")
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             app_logo_file.save(filepath)

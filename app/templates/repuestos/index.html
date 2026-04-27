@@ -47,7 +47,6 @@
         <td style="text-align:right;">
           <a href="{{ url_for('repuesto.editar', id=r.id_repuesto) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
           <form method="POST" action="{{ url_for('repuesto.eliminar', id=r.id_repuesto) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar {{ r.nombre }}?')">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
           </form>
         </td>

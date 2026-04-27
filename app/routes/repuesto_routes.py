@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.models.repuesto import Repuesto
-from app import db, allowed_file
+from app import db
 from functools import wraps
 
 bp = Blueprint('repuesto', __name__, url_prefix='/repuestos')
@@ -42,9 +42,6 @@ def agregar():
 
         # Prioridad: Archivo subido > URL > Nada
         if archivo_imagen and archivo_imagen.filename:
-            if not allowed_file(archivo_imagen.filename):
-                flash('Formato de imagen no permitido. Usa PNG, JPG, JPEG, GIF o WEBP.', 'danger')
-                return render_template('repuestos/form.html', accion='Agregar', repuesto=None)
             filename = secure_filename(f"rep_{nombre}_{archivo_imagen.filename}")
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             archivo_imagen.save(filepath)
@@ -71,9 +68,6 @@ def editar(id):
         archivo_imagen = request.files.get('archivo_imagen')
 
         if archivo_imagen and archivo_imagen.filename:
-            if not allowed_file(archivo_imagen.filename):
-                flash('Formato de imagen no permitido. Usa PNG, JPG, JPEG, GIF o WEBP.', 'danger')
-                return render_template('repuestos/form.html', accion='Editar', repuesto=repuesto)
             filename = secure_filename(f"rep_{repuesto.nombre}_{archivo_imagen.filename}")
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             archivo_imagen.save(filepath)

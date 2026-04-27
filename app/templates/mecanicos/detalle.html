@@ -9,7 +9,7 @@
         <div style="width:70px;height:70px;background:linear-gradient(135deg,#FF5C00,#FF8A00);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(255,92,0,0.3);">
           <i class="fas fa-hard-hat" style="color:#fff;font-size:26px;"></i>
         </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;">{{ mecanico.nombre }}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;">{{ mecanico.nombre }}</div>
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;"><i class="fas fa-phone me-1" style="color:var(--naranja);"></i>{{ mecanico.telefono or 'Sin teléfono' }}</div>
         <div style="font-size:13px;color:var(--text-muted);"><i class="fas fa-tools me-1" style="color:var(--naranja);"></i>{{ mecanico.especialidad or 'Sin especialidad' }}</div>
         <div style="display:flex;gap:8px;justify-content:center;margin-top:22px;">
@@ -39,7 +39,7 @@
           <tr>
             <td style="color:var(--text-dim);">{{ o.id_servicio }}</td>
             <td><span class="placa-tag">{{ o.moto.placa }}</span></td>
-            <td style="color:var(--text);">{{ o.moto.cliente.nombre }}</td>
+            <td style="color:#fff;">{{ o.moto.cliente.nombre }}</td>
             <td style="color:var(--text-muted);">{{ o.fecha.strftime('%d/%m/%Y') }}</td>
             <td><span class="badge-mt badge-{{ o.estado }}">{{ o.estado.replace('_',' ').title() }}</span></td>
             <td style="text-align:right;">

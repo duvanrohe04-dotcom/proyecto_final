@@ -166,7 +166,6 @@
     <a href="{{ url_for('portal.mis_citas') }}" class="portal-nav-link {{ 'active' if request.endpoint == 'portal.mis_citas' }}"><i class="fas fa-clipboard-list me-1"></i> Mis Citas</a>
     <a href="{{ url_for('portal.mis_compras') }}" class="portal-nav-link {{ 'active' if request.endpoint == 'portal.mis_compras' }}"><i class="fas fa-shopping-bag me-1"></i> Mis Compras</a>
     <a href="{{ url_for('portal.resenas') }}" class="portal-nav-link {{ 'active' if request.endpoint == 'portal.resenas' }}"><i class="fas fa-star me-1"></i> Reseñas</a>
-    <a href="{{ url_for('portal.perfil') }}" class="portal-nav-link {{ 'active' if request.endpoint == 'portal.perfil' }}"><i class="fas fa-user-cog me-1"></i> Mi Perfil</a>
   </div>
   <div class="portal-nav-user">
     {% if app_instagram %}

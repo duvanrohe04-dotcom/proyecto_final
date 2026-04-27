@@ -3,16 +3,11 @@ from datetime import date, time
 
 class OrdenServicio(db.Model):
     __tablename__ = 'orden_servicio'
-    __table_args__ = (
-        db.Index('ix_orden_fecha_hora', 'fecha', 'hora'),
-        db.Index('ix_orden_estado', 'estado'),
-        db.Index('ix_orden_cita_cliente', 'es_cita_cliente'),
-    )
     id_servicio = db.Column(db.Integer, primary_key=True)
-    id_moto = db.Column(db.Integer, db.ForeignKey('moto.id_moto', onupdate='CASCADE', ondelete='RESTRICT'), nullable=False, index=True)
-    id_mecanico = db.Column(db.Integer, db.ForeignKey('mecanico.id_mecanico', onupdate='CASCADE', ondelete='SET NULL'), nullable=True, index=True)
+    id_moto = db.Column(db.Integer, db.ForeignKey('moto.id_moto', onupdate='CASCADE', ondelete='RESTRICT'), nullable=False)
+    id_mecanico = db.Column(db.Integer, db.ForeignKey('mecanico.id_mecanico', onupdate='CASCADE', ondelete='SET NULL'), nullable=True)
     fecha = db.Column(db.Date, nullable=False, default=date.today)
-    hora = db.Column(db.String(5), nullable=True)
+    hora = db.Column(db.String(5), nullable=True)  # Ej: "09:00"
     estado = db.Column(db.String(20), nullable=False, default='pendiente')
     valor = db.Column(db.Numeric(10, 2))
     es_cita_cliente = db.Column(db.Boolean, default=False)

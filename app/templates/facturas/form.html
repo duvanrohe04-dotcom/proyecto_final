@@ -7,7 +7,6 @@
     <div class="card-header"><i class="fas fa-file-invoice-dollar"></i> Nueva Factura</div>
     <div class="card-body-pad">
       <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="mb-3">
           <label class="form-label">Cliente</label>
           <select name="id_cliente" class="form-select">

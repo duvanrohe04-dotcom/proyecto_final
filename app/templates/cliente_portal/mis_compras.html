@@ -48,7 +48,6 @@
               <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
                 <span style="background:rgba(250,204,21,0.1);color:#facc15;font-size:11px;padding:6px 14px;border-radius:20px;font-weight:700;border:1px solid rgba(250,204,21,0.2);text-transform:uppercase;letter-spacing:1px;">Solicitud</span>
                 <form method="POST" action="{{ url_for('portal.cancelar_compra', id=c.id_compra) }}" onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?')">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" style="background:transparent;border:none;color:#ef4444;font-size:10px;font-weight:700;text-decoration:underline;cursor:pointer;">Cancelar Pedido</button>
                 </form>
               </div>
