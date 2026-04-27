@@ -1,3 +1,4 @@
+import os
 from app import create_app, db
 from app.models.usuario import Usuario
 from app.models.cliente import Cliente
@@ -15,7 +16,6 @@ app = create_app()
 with app.app_context():
     db.create_all()
 
-    # ── Config por defecto ──
     if not Config.query.filter_by(key='app_name').first():
         db.session.add(Config(key='app_name', value='MotoTaller Pro'))
         db.session.add(Config(key='app_logo', value=None))
@@ -24,7 +24,6 @@ with app.app_context():
         db.session.commit()
         print("✅ Configuración por defecto creada")
 
-    # ── Admin por defecto ──
     if not Usuario.query.filter_by(nombre_usuario='admin').first():
         admin = Usuario(nombre_usuario='admin', rol='admin')
         admin.set_password('admin123')
@@ -32,11 +31,9 @@ with app.app_context():
         db.session.commit()
         print("✅ Admin creado: usuario=admin, contraseña=admin123")
 
-    # ── Datos de prueba (solo si no existen) ──
     if Cliente.query.count() == 0:
         print("📦 Creando datos de prueba...")
 
-        # Repuestos
         repuestos_data = [
             ('Filtro de aceite', 18000),
             ('Aceite motor 4T 10W40', 35000),
@@ -58,7 +55,6 @@ with app.app_context():
             repuestos.append(r)
         db.session.flush()
 
-        # Mecánicos
         mecas_data = [
             ('Carlos Mendoza', '3101234567', 'Motor y transmisión'),
             ('Jorge Ríos', '3209876543', 'Sistema eléctrico'),
@@ -71,12 +67,11 @@ with app.app_context():
             mecas.append(m)
         db.session.flush()
 
-        # Clientes + usuarios
         clientes_data = [
             ('Santiago Gómez',   '3001112233', 'Cra 15 #45-20, Bogotá',   'BMW F800GS',   'BMW',       2019, 'BWX001'),
             ('Valentina Torres', '3112223344', 'Cl 80 #12-05, Medellín',  'Honda CB500',  'Honda',     2021, 'HCB002'),
             ('Sebastián Ruiz',   '3223334455', 'Av 68 #30-15, Bogotá',    'Yamaha MT07',  'Yamaha',    2020, 'YMT003'),
-            ('Camila Vargas',    '3334445566', 'Cra 7 #100-22, Bogotá',   'Kawasaki Z400','Kawasaki',  2022, 'KZX004'),
+            ('Camila Vargas',    '3334445566', 'Cra 7 #100-22, Bogotá',   'Kawasaki Z400','Kawasaki', 2022, 'KZX004'),
             ('Andrés Moreno',    '3445556677', 'Cl 50 #8-30, Cali',       'Suzuki GN125', 'Suzuki',    2018, 'SGN005'),
             ('Laura Jiménez',    '3556667788', 'Av 30 #15-40, Barranquilla','Honda Wave 110','Honda',   2020, 'HWV006'),
             ('Felipe Castro',    '3667778899', 'Cra 20 #60-10, Manizales','Yamaha XTZ125','Yamaha',    2021, 'YXZ007'),
@@ -88,24 +83,20 @@ with app.app_context():
         hoy = date.today()
         clientes = []
         for i, (nombre, tel, dir_, tipo_moto, marca, anio, placa) in enumerate(clientes_data):
-            # Crear usuario cliente
             if not Usuario.query.filter_by(nombre_usuario=nombre.split()[0].lower()).first():
                 u = Usuario(nombre_usuario=nombre.split()[0].lower(), rol='cliente')
                 u.set_password('cliente123')
                 db.session.add(u)
 
-            # Crear cliente
             c = Cliente(nombre=nombre, telefono=tel, direccion=dir_)
             db.session.add(c)
             db.session.flush()
             clientes.append(c)
 
-            # Crear moto
             moto = Moto(placa=placa, tipo=tipo_moto, modelo=anio, id_cliente=c.id_cliente)
             db.session.add(moto)
             db.session.flush()
 
-            # Crear orden
             fecha_orden = hoy - timedelta(days=i*5)
             meca = mecas[i % len(mecas)]
             hora = OrdenServicio.HORAS[i % len(OrdenServicio.HORAS)]
@@ -125,7 +116,6 @@ with app.app_context():
             db.session.add(orden)
             db.session.flush()
 
-            # Agregar 2 repuestos a la orden
             rep1 = repuestos[i % len(repuestos)]
             rep2 = repuestos[(i+1) % len(repuestos)]
             item1 = OrdenRepuesto(id_servicio=orden.id_servicio, id_repuesto=rep1.id_repuesto, cantidad=1, valor=rep1.valor)
@@ -134,10 +124,8 @@ with app.app_context():
             db.session.add(item2)
             db.session.flush()
 
-            # Total real = valor_base + repuestos
             total_factura = float(valor_base) + float(rep1.valor) + float(rep2.valor)
 
-            # Crear factura
             factura = Factura(
                 id_cliente=c.id_cliente,
                 id_servicio=orden.id_servicio,
@@ -150,6 +138,6 @@ with app.app_context():
         print(f"✅ Datos de prueba creados: 10 clientes, motos, órdenes, repuestos y facturas")
 
 if __name__ == '__main__':
-    
-    app.run(debug=True, host='0.0.0.0', port=81)
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    app.run(debug=debug_mode, host='0.0.0.0', port=81)
            

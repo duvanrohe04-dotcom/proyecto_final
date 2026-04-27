@@ -13,4 +13,4 @@ ENV SECRET_KEY=cambiar-esta-clave-en-produccion
 
 EXPOSE 81
 
-CMD ["python", "run.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:81", "--workers", "2", "run:app"]
