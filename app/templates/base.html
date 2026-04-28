@@ -200,12 +200,63 @@
     /* ── LIGHT MODE special bg ── */
     [data-theme="light"] #admin-bg-canvas { opacity:1; }
     [data-theme="light"] body { background:linear-gradient(135deg,#FFF7F0 0%,#FFF0E0 60%,#FFE8CC 100%); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      #sidebar { width:280px; transform:translateX(-100%); transition:transform 0.3s ease; }
+      #sidebar.mobile-open { transform:translateX(0); }
+      #main { margin-left:0; }
+      .topbar { padding:0 16px; height:52px; }
+      .topbar-title { font-size:16px; }
+      .page-body { padding:16px; }
+      .card-body-pad { padding:16px; }
+      .stat-card { padding:16px; }
+      .stat-value { font-size:26px; }
+      .stat-icon { font-size:24px; right:12px; }
+      .btn-primary-mt { padding:8px 16px; font-size:12px; }
+      .btn-secondary-mt { padding:8px 16px; font-size:12px; }
+      .table-mt { font-size:12px; }
+      .table-mt thead th { padding:8px 10px; font-size:9px; }
+      .table-mt tbody td { padding:10px 10px; font-size:12px; }
+      .badge-mt { font-size:10px; padding:3px 9px; }
+      .form-control, .form-select { padding:8px 10px; font-size:12px; }
+      .action-btn { width:28px; height:28px; font-size:11px; }
+      .empty-state { padding:40px 16px; }
+      .empty-state i { font-size:32px; }
+      .page-header { flex-direction:column; align-items:flex-start; gap:12px; }
+      .page-header h2 { font-size:22px; }
+      .cita-badge { font-size:9px; padding:2px 6px; }
+    }
+
+    /* ── MOBILE MENU BUTTON ── */
+    .sidebar-toggle-btn { display:none; background:transparent; border:none; color:var(--text); font-size:22px; cursor:pointer; padding:8px; border-radius:8px; transition:background 0.15s; }
+    .sidebar-toggle-btn:hover { background:rgba(255,92,0,0.08); }
+    @media (max-width: 768px) { .sidebar-toggle-btn { display:flex; align-items:center; justify-content:center; } }
+
+    /* ── CANVAS OPTIMIZATION FOR MOBILE ── */
+    @media (max-width: 768px) {
+      #admin-bg-canvas { display:none; }
+      [data-theme="light"] #admin-bg-canvas { display:none; }
+    }
+
+    /* ── MOBILE OVERLAY ── */
+    .sidebar-overlay {
+      display:none;
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5); z-index:290;
+    }
+    @media (max-width: 768px) {
+      .sidebar-overlay { display:block; }
+      .sidebar-overlay.hidden { display:none; }
+    }
   </style>
 </head>
 <body>
 {% if current_user.is_authenticated %}
 
 <canvas id="admin-bg-canvas"></canvas>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 
 <div id="sidebar">
   <div class="sb-brand">
@@ -257,7 +308,10 @@
 
 <div id="main">
   <div class="topbar">
-    <span class="topbar-title">{% block page_title %}Panel{% endblock %}</span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="sidebar-toggle-btn" id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <span class="topbar-title">{% block page_title %}Panel{% endblock %}</span>
+    </div>
     <span class="topbar-badge"><i class="fas fa-tools me-1"></i>MotoTaller Pro</span>
   </div>
   <div class="page-body">
@@ -292,6 +346,34 @@ function loadTheme(){
   initCanvas(t);
 }
 
+// Mobile sidebar toggle
+document.getElementById('sidebar-toggle')?.addEventListener('click',function(e){
+  e.stopPropagation();
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebar-overlay');
+  if(sidebar && overlay) {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('hidden');
+  }
+});
+document.getElementById('sidebar-overlay')?.addEventListener('click',function(){
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebar-overlay');
+  if(sidebar && overlay) {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.add('hidden');
+  }
+});
+// Close sidebar when clicking on main content in mobile
+document.getElementById('main')?.addEventListener('click',function(){
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebar-overlay');
+  if(sidebar && overlay && window.innerWidth<=768 && sidebar.classList.contains('mobile-open')) {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.add('hidden');
+  }
+});
+
 let animFrame2;
 function initCanvas(theme){
   if(animFrame2) cancelAnimationFrame(animFrame2);
@@ -299,6 +381,9 @@ function initCanvas(theme){
   if(!canvas) return;
   const ctx=canvas.getContext('2d');
   let W,H,mouse={x:-9999,y:-9999};
+  const isMobile=window.innerWidth<=768;
+  if(isMobile) return; // Skip canvas on mobile for performance
+  
   const ALPHA=theme==='dark'?1:0.4;
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   resize(); window.addEventListener('resize',resize);

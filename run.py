@@ -23,6 +23,15 @@ with app.app_context():
         db.session.add(Config(key='app_whatsapp', value=''))
         db.session.commit()
         print("✅ Configuración por defecto creada")
+        
+        # Corregir rutas de imágenes si es necesario
+        from app.models.repuesto import Repuesto
+        repuestos = Repuesto.query.filter(Repuesto.imagen != None).filter(~Repuesto.imagen.startswith('http')).all()
+        for r in repuestos:
+            if not r.imagen.startswith('static/'):
+                r.imagen = f"static/{r.imagen}"
+        db.session.commit()
+        print("✅ Rutas de imágenes corregidas")
 
     if not Usuario.query.filter_by(nombre_usuario='admin').first():
         admin = Usuario(nombre_usuario='admin', rol='admin')
@@ -35,22 +44,22 @@ with app.app_context():
         print("📦 Creando datos de prueba...")
 
         repuestos_data = [
-            ('Filtro de aceite', 18000),
-            ('Aceite motor 4T 10W40', 35000),
-            ('Pastillas de freno delanteras', 45000),
-            ('Pastillas de freno traseras', 38000),
-            ('Bujía NGK', 12000),
-            ('Cadena de transmisión', 85000),
-            ('Llanta delantera 90/90-21', 120000),
-            ('Llanta trasera 110/90-18', 135000),
-            ('Cable de embrague', 22000),
-            ('Líquido de frenos DOT4', 15000),
-            ('Filtro de aire', 28000),
-            ('Kit de carburación', 65000),
+            ('Filtro de aceite', 18000, 'uploads/repuestos/rep_Filtro_de_aceite_OIP_2.webp'),
+            ('Aceite motor 4T 10W40', 35000, 'uploads/repuestos/rep_Aceite_motor_4T_10W40_OIP.jpg'),
+            ('Pastillas de freno delanteras', 45000, 'uploads/repuestos/rep_Pastillas_de_freno_delanteras_OIP_5.webp'),
+            ('Pastillas de freno traseras', 38000, 'uploads/repuestos/rep_Pastillas_de_freno_traseras_OIP_5.webp'),
+            ('Bujía NGK', 12000, 'uploads/repuestos/rep_Bujia_NGK_OIP.webp'),
+            ('Cadena de transmisión', 85000, None),
+            ('Llanta delantera 90/90-21', 120000, 'uploads/repuestos/rep_Llanta_delantera_90_90-21_descarga.webp'),
+            ('Llanta trasera 110/90-18', 135000, 'uploads/repuestos/rep_Llanta_trasera_110_90-18_OIP_4.webp'),
+            ('Cable de embrague', 22000, 'uploads/repuestos/rep_Cable_de_embrague_OIP_1.webp'),
+            ('Líquido de frenos DOT4', 15000, None),
+            ('Filtro de aire', 28000, 'uploads/repuestos/rep_Filtro_de_aire_OIP_3.webp'),
+            ('Kit de carburación', 65000, None),
         ]
         repuestos = []
-        for nombre, valor in repuestos_data:
-            r = Repuesto(nombre=nombre, valor=valor)
+        for nombre, valor, imagen in repuestos_data:
+            r = Repuesto(nombre=nombre, valor=valor, imagen=imagen)
             db.session.add(r)
             repuestos.append(r)
         db.session.flush()
@@ -136,6 +145,15 @@ with app.app_context():
 
         db.session.commit()
         print(f"✅ Datos de prueba creados: 10 clientes, motos, órdenes, repuestos y facturas")
+        
+        # Corregir rutas de imágenes si es necesario
+        from app.models.repuesto import Repuesto
+        repuestos = Repuesto.query.filter(Repuesto.imagen != None).filter(~Repuesto.imagen.startswith('http')).all()
+        for r in repuestos:
+            if not r.imagen.startswith('static/'):
+                r.imagen = f"static/{r.imagen}"
+        db.session.commit()
+        print("✅ Rutas de imágenes corregidas")
 
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_ENV') != 'production'

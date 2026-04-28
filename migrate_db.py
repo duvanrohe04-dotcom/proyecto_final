@@ -52,6 +52,14 @@ def migrate():
     cur.execute("PRAGMA journal_mode=WAL")
     cur.execute("PRAGMA synchronous=NORMAL")
     print("✅ WAL mode activado")
+    
+    # Corregir rutas de imágenes
+    cur.execute("SELECT id_repuesto, imagen FROM repuesto WHERE imagen IS NOT NULL AND NOT imagen LIKE 'http%' AND NOT imagen LIKE 'static/%'")
+    repuestos = cur.fetchall()
+    for id_rep, imagen in repuestos:
+        cur.execute("UPDATE repuesto SET imagen = ? WHERE id_repuesto = ?", (f"static/{imagen}", id_rep))
+    if repuestos:
+        print(f"✅ Rutas de {len(repuestos)} imágenes corregidas")
 
     conn.commit()
     conn.close()

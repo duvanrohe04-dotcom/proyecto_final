@@ -9,6 +9,11 @@ class Repuesto(db.Model):
 
     orden_repuestos = db.relationship('OrdenRepuesto', back_populates='repuesto', lazy='dynamic', cascade="all, delete-orphan")
 
+    def __init__(self, nombre, valor, imagen=None):
+        self.nombre = nombre
+        self.valor = valor
+        self.imagen = imagen
+
     def __repr__(self):
         return f'<Repuesto {self.nombre}>'
 

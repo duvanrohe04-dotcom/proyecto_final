@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
@@ -47,6 +47,11 @@ def create_app():
     app.register_blueprint(factura_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(portal_bp)
+
+    # Servir archivos estáticos desde uploads
+    @app.route('/static/uploads/repuestos/<filename>')
+    def serve_upload(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
     # Procesador de contexto para variables globales (Nombre de App, Logo, Redes)
     @app.context_processor
