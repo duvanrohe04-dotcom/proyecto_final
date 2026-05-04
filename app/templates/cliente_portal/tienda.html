@@ -25,7 +25,7 @@
                     {% if r.imagen.startswith('http') %}
                       <img src="{{ r.imagen }}" alt="{{ r.nombre }}" style="width:100%;height:100%;object-fit:cover;">
                     {% else %}
-                      <img src="{{ url_for('static', filename=r.imagen) }}" alt="{{ r.nombre }}" style="width:100%;height:100%;object-fit:cover;">
+                      <img src="{{ url_for('serve_repuesto_image', filename=r.imagen.split('/')[-1]) }}" alt="{{ r.nombre }}" style="width:100%;height:100%;object-fit:cover;">
                     {% endif %}
                   {% else %}
                     <i class="fas fa-tools" style="font-size:32px;color:rgba(255,255,255,0.05);"></i>

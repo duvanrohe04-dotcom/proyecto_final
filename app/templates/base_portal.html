@@ -2,7 +2,7 @@
 <html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
   <title>{% block title %}Portal Cliente — MotoTaller{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
@@ -206,7 +206,7 @@
         {% if app_logo.startswith('http') %}
           <img src="{{ app_logo }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
         {% else %}
-          <img src="{{ url_for('static', filename=app_logo.replace('static/','')) }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+          <img src="{{ url_for('serve_repuesto_image', filename=app_logo.split('/')[-1]) }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
         {% endif %}
       {% else %}
         <i class="fas fa-motorcycle"></i>

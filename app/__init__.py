@@ -48,9 +48,9 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(portal_bp)
 
-    # Servir archivos estáticos desde uploads
-    @app.route('/static/uploads/repuestos/<filename>')
-    def serve_upload(filename):
+    # Servir archivos estáticos desde uploads con ruta dedicada
+    @app.route('/uploads/repuestos/<filename>')
+    def serve_repuesto_image(filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
     # Procesador de contexto para variables globales (Nombre de App, Logo, Redes)

@@ -37,7 +37,7 @@
             {% if repuesto.imagen.startswith('http') %}
               <img src="{{ repuesto.imagen }}" style="width:100%; height:100%; object-fit:cover;"/>
             {% else %}
-              <img src="{{ url_for('static', filename=repuesto.imagen) }}" style="width:100%; height:100%; object-fit:cover;"/>
+              <img src="{{ url_for('serve_repuesto_image', filename=repuesto.imagen.split('/')[-1]) }}" style="width:100%; height:100%; object-fit:cover;"/>
             {% endif %}
           </div>
         </div>
