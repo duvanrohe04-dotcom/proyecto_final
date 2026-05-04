@@ -297,3 +297,47 @@ def eliminar_resena(id):
         flash('Reseña eliminada.', 'success')
     return redirect(url_for('portal.resenas'))
 
+@bp.route('/perfil', methods=['GET', 'POST'])
+@login_required
+@cliente_required
+def perfil():
+    from app.models.cliente import Cliente
+    from werkzeug.security import generate_password_hash
+
+    cliente = Cliente.query.filter_by(nombre=current_user.nombre_usuario).first()
+    if not cliente:
+        cliente = Cliente(nombre=current_user.nombre_usuario)
+        db.session.add(cliente)
+        db.session.commit()
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'datos':
+            current_user.nombre_usuario = request.form.get('nombre_usuario', '').strip()
+            cliente.nombre = current_user.nombre_usuario
+            cliente.telefono = request.form.get('telefono', '').strip()
+            cliente.direccion = request.form.get('direccion', '').strip()
+            db.session.commit()
+            flash('Datos actualizados correctamente.', 'success')
+
+        elif action == 'password':
+            current_password = request.form.get('current_password', '')
+            new_password = request.form.get('new_password', '')
+            confirm_password = request.form.get('confirm_password', '')
+
+            if not current_user.check_password(current_password):
+                flash('La contraseña actual es incorrecta.', 'danger')
+            elif new_password != confirm_password:
+                flash('Las nuevas contraseñas no coinciden.', 'danger')
+            elif len(new_password) < 4:
+                flash('La nueva contraseña debe tener al menos 4 caracteres.', 'danger')
+            else:
+                current_user.set_password(new_password)
+                db.session.commit()
+                flash('Contraseña actualizada correctamente.', 'success')
+
+        return redirect(url_for('portal.perfil'))
+
+    return render_template('cliente_portal/perfil.html', cliente=cliente)
+
