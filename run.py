@@ -8,6 +8,7 @@ from app.models.orden_servicio import OrdenServicio
 from app.models.repuesto import Repuesto, OrdenRepuesto
 from app.models.factura import Factura
 from app.models.compra import Compra, CompraRepuesto
+from app.models.resena import Resena
 from app.models.config import Config
 from datetime import date, timedelta
 

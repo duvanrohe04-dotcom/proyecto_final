@@ -9,7 +9,6 @@
   </div>
   {% if resenas %}
   <form method="POST" action="{{ url_for('admin.eliminar_todas_resenas') }}" onsubmit="return confirm('¿Eliminar TODAS las reseñas? Esta acción no se puede deshacer.')">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <button type="submit" class="btn-danger-mt"><i class="fas fa-trash-alt"></i> Eliminar todas</button>
   </form>
   {% endif %}
@@ -87,7 +86,6 @@
         <td style="color:var(--text-muted);font-size:13px;white-space:nowrap;">{{ r.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
         <td style="text-align:right;">
           <form method="POST" action="{{ url_for('admin.eliminar_resena', id=r.id_resena) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta reseña?')">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
           </form>
         </td>
