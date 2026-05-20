@@ -10,15 +10,9 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     
-    # PostgreSQL para producción (Coolify), SQLite para desarrollo local
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
-        pg_user = os.environ.get('POSTGRES_USER', 'postgres')
-        pg_pass = os.environ.get('POSTGRES_PASSWORD', 'postgres')
-        pg_host = os.environ.get('POSTGRES_HOST', 'db')
-        pg_db = os.environ.get('POSTGRES_DB', 'taller_db')
-        pg_port = os.environ.get('POSTGRES_PORT', '5432')
-        database_url = f"postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}"
+        raise ValueError("La variable de entorno DATABASE_URL no está configurada.")
     if not app.config['SECRET_KEY']:
         raise ValueError("La variable de entorno SECRET_KEY no está configurada.")
         
