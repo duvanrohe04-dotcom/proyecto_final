@@ -6,11 +6,13 @@ services:
     container_name: motortaller_web
     ports:
       - "81:81"
-    env_file:
-      - .env
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/taller_db}
+      SECRET_KEY: ${SECRET_KEY}
+      FLASK_ENV: ${FLASK_ENV:-production}
     volumes:
       - ./instance:/app/instance
       - ./app/static/uploads:/app/static/uploads
@@ -25,8 +27,6 @@ services:
     image: postgres:15-alpine
     container_name: motortaller_db
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
