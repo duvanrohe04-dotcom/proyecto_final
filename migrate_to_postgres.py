@@ -9,12 +9,19 @@ Ejecutar localmente antes de desplegar en Coolify:
 
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # URL de SQLite (origen)
-SQLITE_URL = 'sqlite:///taller.db'
+SQLITE_URL = os.environ.get('SQLITE_URL', 'sqlite:///taller.db')
 
-# URL de PostgreSQL (destino) - Reemplazar con tu URL
-POSTGRES_URL = 'postgres://postgres:fAsgjW3bsrLbsBfrSIxltERDtu090hJGVQmiDheF8wL8tDnyxBXPYvUlwgd1u5c@xss53rbys91ky5kngduid77a:5432/postgres'
+# URL de PostgreSQL (destino) - Reemplazar con tu URL en el .env
+POSTGRES_URL = os.environ.get('POSTGRES_URL')
+
+if not POSTGRES_URL:
+    print("Error: La variable de entorno POSTGRES_URL no está definida en el archivo .env")
+    sys.exit(1)
 
 # Fix para SQLAlchemy
 if POSTGRES_URL.startswith('postgres://'):

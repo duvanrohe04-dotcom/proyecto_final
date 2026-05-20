@@ -1,4 +1,8 @@
 import os
+from datetime import date, timedelta
+
+from dotenv import load_dotenv
+
 from app import create_app, db
 from app.models.usuario import Usuario
 from app.models.cliente import Cliente
@@ -7,10 +11,10 @@ from app.models.moto import Moto
 from app.models.orden_servicio import OrdenServicio
 from app.models.repuesto import Repuesto, OrdenRepuesto
 from app.models.factura import Factura
-from app.models.compra import Compra, CompraRepuesto
-from app.models.resena import Resena
 from app.models.config import Config
-from datetime import date, timedelta
+
+# Cargar variables de entorno desde .env local
+load_dotenv()
 
 app = create_app()
 
@@ -24,11 +28,11 @@ with app.app_context():
         db.session.add(Config(key='app_whatsapp', value=''))
         db.session.commit()
         print("✅ Configuración por defecto creada")
-        
+
         # Corregir rutas de imágenes si es necesario
-        from app.models.repuesto import Repuesto
-        repuestos = Repuesto.query.filter(Repuesto.imagen != None).filter(~Repuesto.imagen.startswith('http')).all()
-        for r in repuestos:
+        repuestos_imgs = Repuesto.query.filter(Repuesto.imagen != None).filter(
+            ~Repuesto.imagen.startswith('http')).all()
+        for r in repuestos_imgs:
             if not r.imagen.startswith('static/'):
                 r.imagen = f"static/{r.imagen}"
         db.session.commit()
@@ -45,15 +49,22 @@ with app.app_context():
         print("📦 Creando datos de prueba...")
 
         repuestos_data = [
-            ('Filtro de aceite', 18000, 'uploads/repuestos/rep_Filtro_de_aceite_OIP_2.webp'),
-            ('Aceite motor 4T 10W40', 35000, 'uploads/repuestos/rep_Aceite_motor_4T_10W40_OIP.jpg'),
-            ('Pastillas de freno delanteras', 45000, 'uploads/repuestos/rep_Pastillas_de_freno_delanteras_OIP_5.webp'),
-            ('Pastillas de freno traseras', 38000, 'uploads/repuestos/rep_Pastillas_de_freno_traseras_OIP_5.webp'),
+            ('Filtro de aceite', 18000,
+             'uploads/repuestos/rep_Filtro_de_aceite_OIP_2.webp'),
+            ('Aceite motor 4T 10W40', 35000,
+             'uploads/repuestos/rep_Aceite_motor_4T_10W40_OIP.jpg'),
+            ('Pastillas de freno delanteras', 45000,
+             'uploads/repuestos/rep_Pastillas_de_freno_delanteras_OIP_5.webp'),
+            ('Pastillas de freno traseras', 38000,
+             'uploads/repuestos/rep_Pastillas_de_freno_traseras_OIP_5.webp'),
             ('Bujía NGK', 12000, 'uploads/repuestos/rep_Bujia_NGK_OIP.webp'),
             ('Cadena de transmisión', 85000, None),
-            ('Llanta delantera 90/90-21', 120000, 'uploads/repuestos/rep_Llanta_delantera_90_90-21_descarga.webp'),
-            ('Llanta trasera 110/90-18', 135000, 'uploads/repuestos/rep_Llanta_trasera_110_90-18_OIP_4.webp'),
-            ('Cable de embrague', 22000, 'uploads/repuestos/rep_Cable_de_embrague_OIP_1.webp'),
+            ('Llanta delantera 90/90-21', 120000,
+             'uploads/repuestos/rep_Llanta_delantera_90_90-21_descarga.webp'),
+            ('Llanta trasera 110/90-18', 135000,
+             'uploads/repuestos/rep_Llanta_trasera_110_90-18_OIP_4.webp'),
+            ('Cable de embrague', 22000,
+             'uploads/repuestos/rep_Cable_de_embrague_OIP_1.webp'),
             ('Líquido de frenos DOT4', 15000, None),
             ('Filtro de aire', 28000, 'uploads/repuestos/rep_Filtro_de_aire_OIP_3.webp'),
             ('Kit de carburación', 65000, None),
@@ -78,23 +89,34 @@ with app.app_context():
         db.session.flush()
 
         clientes_data = [
-            ('Santiago Gómez',   '3001112233', 'Cra 15 #45-20, Bogotá',   'BMW F800GS',   'BMW',       2019, 'BWX001'),
-            ('Valentina Torres', '3112223344', 'Cl 80 #12-05, Medellín',  'Honda CB500',  'Honda',     2021, 'HCB002'),
-            ('Sebastián Ruiz',   '3223334455', 'Av 68 #30-15, Bogotá',    'Yamaha MT07',  'Yamaha',    2020, 'YMT003'),
-            ('Camila Vargas',    '3334445566', 'Cra 7 #100-22, Bogotá',   'Kawasaki Z400','Kawasaki', 2022, 'KZX004'),
-            ('Andrés Moreno',    '3445556677', 'Cl 50 #8-30, Cali',       'Suzuki GN125', 'Suzuki',    2018, 'SGN005'),
-            ('Laura Jiménez',    '3556667788', 'Av 30 #15-40, Barranquilla','Honda Wave 110','Honda',   2020, 'HWV006'),
-            ('Felipe Castro',    '3667778899', 'Cra 20 #60-10, Manizales','Yamaha XTZ125','Yamaha',    2021, 'YXZ007'),
-            ('Daniela Herrera',  '3778889900', 'Cl 10 #22-55, Pereira',   'AKT TT 125',  'AKT',       2019, 'AKT008'),
-            ('Miguel Sánchez',   '3889990011', 'Av 1 #5-20, Cúcuta',      'Royal Enfield Meteor','Royal Enfield',2022,'REM009'),
-            ('Isabella Pérez',   '3990001122', 'Cl 100 #45-30, Bogotá',   'KTM Duke 200', 'KTM',      2023, 'KTD010'),
+            ('Santiago Gómez',   '3001112233', 'Cra 15 #45-20, Bogotá',
+             'BMW F800GS',   'BMW',       2019, 'BWX001'),
+            ('Valentina Torres', '3112223344', 'Cl 80 #12-05, Medellín',
+             'Honda CB500',  'Honda',     2021, 'HCB002'),
+            ('Sebastián Ruiz',   '3223334455', 'Av 68 #30-15, Bogotá',
+             'Yamaha MT07',  'Yamaha',    2020, 'YMT003'),
+            ('Camila Vargas',    '3334445566', 'Cra 7 #100-22, Bogotá',
+             'Kawasaki Z400', 'Kawasaki', 2022, 'KZX004'),
+            ('Andrés Moreno',    '3445556677', 'Cl 50 #8-30, Cali',
+             'Suzuki GN125', 'Suzuki',    2018, 'SGN005'),
+            ('Laura Jiménez',    '3556667788', 'Av 30 #15-40, Barranquilla',
+             'Honda Wave 110', 'Honda',   2020, 'HWV006'),
+            ('Felipe Castro',    '3667778899', 'Cra 20 #60-10, Manizales',
+             'Yamaha XTZ125', 'Yamaha',    2021, 'YXZ007'),
+            ('Daniela Herrera',  '3778889900', 'Cl 10 #22-55, Pereira',
+             'AKT TT 125',  'AKT',       2019, 'AKT008'),
+            ('Miguel Sánchez',   '3889990011', 'Av 1 #5-20, Cúcuta',
+             'Royal Enfield Meteor', 'Royal Enfield', 2022, 'REM009'),
+            ('Isabella Pérez',   '3990001122', 'Cl 100 #45-30, Bogotá',
+             'KTM Duke 200', 'KTM',      2023, 'KTD010'),
         ]
 
         hoy = date.today()
         clientes = []
         for i, (nombre, tel, dir_, tipo_moto, marca, anio, placa) in enumerate(clientes_data):
             if not Usuario.query.filter_by(nombre_usuario=nombre.split()[0].lower()).first():
-                u = Usuario(nombre_usuario=nombre.split()[0].lower(), rol='cliente')
+                u = Usuario(nombre_usuario=nombre.split()
+                            [0].lower(), rol='cliente')
                 u.set_password('cliente123')
                 db.session.add(u)
 
@@ -103,14 +125,16 @@ with app.app_context():
             db.session.flush()
             clientes.append(c)
 
-            moto = Moto(placa=placa, tipo=tipo_moto, modelo=anio, id_cliente=c.id_cliente)
+            moto = Moto(placa=placa, tipo=tipo_moto,
+                        modelo=anio, id_cliente=c.id_cliente)
             db.session.add(moto)
             db.session.flush()
 
             fecha_orden = hoy - timedelta(days=i*5)
             meca = mecas[i % len(mecas)]
             hora = OrdenServicio.HORAS[i % len(OrdenServicio.HORAS)]
-            estado = 'completado' if i < 5 else ('en_proceso' if i < 8 else 'pendiente')
+            estado = 'completado' if i < 5 else (
+                'en_proceso' if i < 8 else 'pendiente')
             valor_base = 80000 + (i * 15000)
 
             orden = OrdenServicio(
@@ -128,13 +152,16 @@ with app.app_context():
 
             rep1 = repuestos[i % len(repuestos)]
             rep2 = repuestos[(i+1) % len(repuestos)]
-            item1 = OrdenRepuesto(id_servicio=orden.id_servicio, id_repuesto=rep1.id_repuesto, cantidad=1, valor=rep1.valor)
-            item2 = OrdenRepuesto(id_servicio=orden.id_servicio, id_repuesto=rep2.id_repuesto, cantidad=1, valor=rep2.valor)
+            item1 = OrdenRepuesto(id_servicio=orden.id_servicio,
+                                  id_repuesto=rep1.id_repuesto, cantidad=1, valor=rep1.valor)
+            item2 = OrdenRepuesto(id_servicio=orden.id_servicio,
+                                  id_repuesto=rep2.id_repuesto, cantidad=1, valor=rep2.valor)
             db.session.add(item1)
             db.session.add(item2)
             db.session.flush()
 
-            total_factura = float(valor_base) + float(rep1.valor) + float(rep2.valor)
+            total_factura = float(valor_base) + \
+                float(rep1.valor) + float(rep2.valor)
 
             factura = Factura(
                 id_cliente=c.id_cliente,
@@ -145,12 +172,13 @@ with app.app_context():
             db.session.add(factura)
 
         db.session.commit()
-        print(f"✅ Datos de prueba creados: 10 clientes, motos, órdenes, repuestos y facturas")
-        
+        print(
+            f"✅ Datos de prueba creados: 10 clientes, motos, órdenes, repuestos y facturas")
+
         # Corregir rutas de imágenes si es necesario
-        from app.models.repuesto import Repuesto
-        repuestos = Repuesto.query.filter(Repuesto.imagen != None).filter(~Repuesto.imagen.startswith('http')).all()
-        for r in repuestos:
+        repuestos_imgs = Repuesto.query.filter(Repuesto.imagen != None).filter(
+            ~Repuesto.imagen.startswith('http')).all()
+        for r in repuestos_imgs:
             if not r.imagen.startswith('static/'):
                 r.imagen = f"static/{r.imagen}"
         db.session.commit()
@@ -159,4 +187,3 @@ with app.app_context():
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_ENV') != 'production'
     app.run(debug=debug_mode, host='0.0.0.0', port=81)
-           

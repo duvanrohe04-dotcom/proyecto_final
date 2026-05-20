@@ -8,16 +8,24 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'mototallersecreto2024')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     
     # PostgreSQL para producción (Coolify), SQLite para desarrollo local
-    database_url = os.environ.get('DATABASE_URL', 'sqlite:///taller.db')
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise ValueError("La variable de entorno DATABASE_URL no está configurada.")
+    if not app.config['SECRET_KEY']:
+        raise ValueError("La variable de entorno SECRET_KEY no está configurada.")
+        
     # Fix para URLs de PostgreSQL en algunos proveedores que usan postgres:// en lugar de postgresql://
-    if database_url.startswith('postgres://'):
+    if database_url and database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', os.path.join('app', 'static', 'uploads', 'repuestos'))
+    
+    # Asegurar ruta correcta para UPLOAD_FOLDER basada en root_path
+    default_upload_folder = os.path.join(app.root_path, 'static', 'uploads', 'repuestos')
+    app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', default_upload_folder)
 
     # Asegurar que la carpeta de subidas existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
