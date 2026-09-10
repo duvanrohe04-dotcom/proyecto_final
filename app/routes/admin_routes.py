@@ -15,9 +15,34 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin():
             flash('Acceso restringido a administradores.', 'danger')
-            return redirect(url_for('auth.login'))
+            admin_id = kwargs.get('admin_id', 1)
+            return redirect(url_for('admin.admin_login', admin_id=admin_id))
         return f(*args, **kwargs)
     return decorated_function
+
+@bp.route('/login/<int:admin_id>', methods=['GET', 'POST'])
+def admin_login(admin_id):
+    if current_user.is_authenticated:
+        if current_user.is_admin():
+            return redirect(url_for('admin.admin_root', admin_id=admin_id))
+        return redirect(url_for('portal.dashboard'))
+
+    if request.method == 'POST':
+        nombre_usuario = request.form['nombre_usuario']
+        password = request.form['password']
+        user = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+
+        if user and user.check_password(password):
+            if not user.is_admin():
+                flash('Acceso denegado. Solo administradores.', 'danger')
+                return render_template('admin/login.html', admin_id=admin_id)
+            login_user(user)
+            flash(f'¡Bienvenido, Administrador {user.nombre_usuario}!', 'success')
+            return redirect(url_for('admin.admin_root', admin_id=admin_id))
+
+        flash('Usuario o contraseña incorrectos.', 'danger')
+
+    return render_template('admin/login.html', admin_id=admin_id)
 
 @bp.route('/<int:admin_id>')
 @login_required

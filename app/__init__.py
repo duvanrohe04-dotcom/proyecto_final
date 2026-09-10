@@ -104,30 +104,43 @@ def create_app():
             return redirect(url_for('portal.dashboard'))
         return redirect(url_for('auth.login'))
 
+    # Login admin directo
+    @app.route('/admin/<int:admin_id>')
+    def admin_direct(admin_id):
+        from flask import redirect, url_for
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            if current_user.is_admin():
+                return redirect(url_for('admin.admin_root', admin_id=admin_id))
+            return redirect(url_for('portal.dashboard'))
+        return redirect(url_for('admin.admin_login', admin_id=admin_id))
+
+    # CLI command para inicializar BD en producción
+    @click.command('init-db')
+    @with_appcontext
+    def init_db_command():
+        from sqlalchemy import text
+        from app.models.config import Config
+        from app.models.usuario import Usuario
+        db.session.execute(text('DROP SEQUENCE IF EXISTS resena_id_resena_seq CASCADE'))
+        db.session.commit()
+        db.create_all()
+        
+        if not Config.query.filter_by(key='app_name').first():
+            db.session.add(Config(key='app_name', value='MotoTaller Pro'))
+            db.session.add(Config(key='app_logo', value=None))
+            db.session.add(Config(key='app_instagram', value=''))
+            db.session.add(Config(key='app_whatsapp', value=''))
+            db.session.commit()
+            print("✅ Configuración por defecto creada")
+        
+        if not Usuario.query.filter_by(nombre_usuario='admin').first():
+            admin = Usuario(nombre_usuario='admin', rol='admin')
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Admin creado: usuario=admin, contraseña=admin123")
+
+    app.cli.add_command(init_db_command)
+
     return app
-
-# CLI command para inicializar BD en producción
-@click.command('init-db')
-@with_appcontext
-def init_db_command():
-    from sqlalchemy import text
-    db.session.execute(text('DROP SEQUENCE IF EXISTS resena_id_resena_seq CASCADE'))
-    db.session.commit()
-    db.create_all()
-    
-    if not Config.query.filter_by(key='app_name').first():
-        db.session.add(Config(key='app_name', value='MotoTaller Pro'))
-        db.session.add(Config(key='app_logo', value=None))
-        db.session.add(Config(key='app_instagram', value=''))
-        db.session.add(Config(key='app_whatsapp', value=''))
-        db.session.commit()
-        print("✅ Configuración por defecto creada")
-    
-    if not Usuario.query.filter_by(nombre_usuario='admin').first():
-        admin = Usuario(nombre_usuario='admin', rol='admin')
-        admin.set_password('admin123')
-        db.session.add(admin)
-        db.session.commit()
-        print("✅ Admin creado: usuario=admin, contraseña=admin123")
-
-app.cli.add_command(init_db_command)
