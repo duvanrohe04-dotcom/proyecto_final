@@ -51,12 +51,12 @@
         <td style="text-align:right;">
           {% if s.estado == 'solicitud' %}
           <div style="display:flex;gap:5px;justify-content:flex-end;">
-            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', id=s.id_compra, nuevo_estado='entregado') }}">
+            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', admin_id=current_user.id, id=s.id_compra, nuevo_estado='entregado') }}">
               <button type="submit" class="btn-primary-mt" style="padding:5px 12px;font-size:11px;background:#22c55e;" title="Marcar como entregado y facturar">
                 <i class="fas fa-check me-1"></i> Entregar
               </button>
             </form>
-            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', id=s.id_compra, nuevo_estado='cancelado') }}">
+            <form method="POST" action="{{ url_for('admin.actualizar_estado_compra', admin_id=current_user.id, id=s.id_compra, nuevo_estado='cancelado') }}">
               <button type="submit" class="btn-danger-mt" style="padding:5px 12px;font-size:11px;" title="Cancelar pedido">
                 <i class="fas fa-times me-1"></i> Cancelar
               </button>

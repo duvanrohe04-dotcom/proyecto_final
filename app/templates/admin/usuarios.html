@@ -80,9 +80,9 @@
           {% endif %}
         </td>
         <td style="text-align:right;">
-          <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+          <a href="{{ url_for('admin.editar_usuario', admin_id=current_user.id, id=u.id) }}" class="action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
           {% if u.id != current_user.id %}
-          <form method="POST" action="{{ url_for('admin.eliminar_usuario', id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario {{ u.nombre_usuario }}?')">
+          <form method="POST" action="{{ url_for('admin.eliminar_usuario', admin_id=current_user.id, id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar usuario {{ u.nombre_usuario }}?')">
             <button type="submit" class="action-btn del" title="Eliminar"><i class="fas fa-trash"></i></button>
           </form>
           {% else %}

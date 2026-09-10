@@ -86,7 +86,7 @@ def agregar_usuario(admin_id):
 
         db.session.commit()
         flash(f'Usuario "{nombre_usuario}" creado exitosamente.', 'success')
-        return redirect(url_for('admin.usuarios'))
+        return redirect(url_for('admin.usuarios', admin_id=admin_id))
 
     return render_template('admin/form_usuario.html', accion='Agregar', user=None)
 
@@ -108,7 +108,7 @@ def editar_usuario(admin_id, id):
         user.rol = nuevo_rol
         db.session.commit()
         flash(f'Usuario "{user.nombre_usuario}" actualizado.', 'success')
-        return redirect(url_for('admin.usuarios'))
+        return redirect(url_for('admin.usuarios', admin_id=admin_id))
 
     return render_template('admin/form_usuario.html', accion='Editar', user=user)
 
@@ -119,12 +119,12 @@ def eliminar_usuario(admin_id, id):
     user = Usuario.query.get_or_404(id)
     if user.id == current_user.id:
         flash('No puedes eliminarte a ti mismo.', 'danger')
-        return redirect(url_for('admin.usuarios'))
+        return redirect(url_for('admin.usuarios', admin_id=admin_id))
     nombre = user.nombre_usuario
     db.session.delete(user)
     db.session.commit()
     flash(f'Usuario "{nombre}" eliminado.', 'info')
-    return redirect(url_for('admin.usuarios'))
+    return redirect(url_for('admin.usuarios', admin_id=admin_id))
 
 @bp.route('/compras/<int:admin_id>')
 @login_required
@@ -141,7 +141,7 @@ def actualizar_estado_compra(admin_id, id, nuevo_estado):
     
     if nuevo_estado not in ['solicitud', 'entregado', 'cancelado']:
         flash('Estado no válido.', 'danger')
-        return redirect(url_for('admin.compras'))
+        return redirect(url_for('admin.compras', admin_id=admin_id))
         
     old_estado = compra.estado
     compra.estado = nuevo_estado
@@ -164,7 +164,7 @@ def actualizar_estado_compra(admin_id, id, nuevo_estado):
         flash(f'Estado del pedido #{compra.id_compra} actualizado a {nuevo_estado}.', 'info')
         
     db.session.commit()
-    return redirect(url_for('admin.compras'))
+    return redirect(url_for('admin.compras', admin_id=admin_id))
 
 @bp.route('/ajustes/<int:admin_id>', methods=['GET', 'POST'])
 @login_required
@@ -197,7 +197,7 @@ def ajustes(admin_id):
         Config.set_val('app_whatsapp', app_whatsapp)
 
         flash('Ajustes actualizados correctamente.', 'success')
-        return redirect(url_for('admin.ajustes'))
+        return redirect(url_for('admin.ajustes', admin_id=admin_id))
 
     return render_template('admin/ajustes.html')
 
@@ -220,7 +220,7 @@ def eliminar_resena(admin_id, id):
     db.session.delete(resena)
     db.session.commit()
     flash('Reseña eliminada correctamente.', 'success')
-    return redirect(url_for('admin.resenas'))
+    return redirect(url_for('admin.resenas', admin_id=admin_id))
 
 
 @bp.route('/resenas/<int:admin_id>/eliminar-todas', methods=['POST'])
@@ -231,5 +231,5 @@ def eliminar_todas_resenas(admin_id):
     Resena.query.delete()
     db.session.commit()
     flash('Todas las reseñas han sido eliminadas.', 'success')
-    return redirect(url_for('admin.resenas'))
+    return redirect(url_for('admin.resenas', admin_id=admin_id))
 

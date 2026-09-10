@@ -307,12 +307,12 @@
     <a href="{{ url_for('moto.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('moto') }}"><i class="fas fa-motorcycle"></i> Motos</a>
     <div class="nav-section">Operaciones</div>
     <a href="{{ url_for('orden.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('orden') }}"><i class="fas fa-clipboard-list"></i> Agenda</a>
-    <a href="{{ url_for('admin.compras') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.compras' }}"><i class="fas fa-shopping-bag"></i> Órdenes de Catálogo</a>
+    <a href="{{ url_for('admin.compras', admin_id=current_user.id) }}" class="nav-link {{ 'active' if request.endpoint == 'admin.compras' }}"><i class="fas fa-shopping-bag"></i> Órdenes de Catálogo</a>
     <a href="{{ url_for('repuesto.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('repuesto') }}"><i class="fas fa-th-list"></i> Catálogo</a>
     <a href="{{ url_for('factura.index') }}" class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('factura') }}"><i class="fas fa-file-invoice-dollar"></i> Facturas</a>
     <div class="nav-section">Administración</div>
-    <a href="{{ url_for('admin.usuarios') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.usuarios' }}"><i class="fas fa-user-shield"></i> Gestión de Usuarios</a>
-    <a href="{{ url_for('admin.ajustes') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.ajustes' }}"><i class="fas fa-cog"></i> Ajustes</a>
+    <a href="{{ url_for('admin.usuarios', admin_id=current_user.id) }}" class="nav-link {{ 'active' if request.endpoint == 'admin.usuarios' }}"><i class="fas fa-user-shield"></i> Gestión de Usuarios</a>
+    <a href="{{ url_for('admin.ajustes', admin_id=current_user.id) }}" class="nav-link {{ 'active' if request.endpoint == 'admin.ajustes' }}"><i class="fas fa-cog"></i> Ajustes</a>
   </nav>
   <div class="sb-footer">
     <div class="theme-switch">

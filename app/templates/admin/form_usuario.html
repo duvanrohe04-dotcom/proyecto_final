@@ -47,7 +47,7 @@
 
         <div style="display:flex;gap:10px;">
           <button type="submit" class="btn-primary-mt"><i class="fas fa-save"></i> Guardar</button>
-          <a href="{{ url_for('admin.usuarios') }}" class="btn-secondary-mt">Cancelar</a>
+          <a href="{{ url_for('admin.usuarios', admin_id=current_user.id) }}" class="btn-secondary-mt">Cancelar</a>
         </div>
       </form>
     </div>
