@@ -20,6 +20,9 @@ load_dotenv()
 app = create_app()
 
 with app.app_context():
+    from sqlalchemy import text
+    db.session.execute(text('DROP SEQUENCE IF EXISTS resena_id_resena_seq CASCADE'))
+    db.session.commit()
     db.create_all()
 
     if not Config.query.filter_by(key='app_name').first():
