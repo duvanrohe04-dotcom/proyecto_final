@@ -12,6 +12,7 @@ from app.models.orden_servicio import OrdenServicio
 from app.models.repuesto import Repuesto, OrdenRepuesto
 from app.models.factura import Factura
 from app.models.config import Config
+from app.models.resena import Resena
 
 # Cargar variables de entorno desde .env local
 load_dotenv()
