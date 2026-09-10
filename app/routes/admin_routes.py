@@ -19,17 +19,40 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@bp.route('/usuarios')
+@bp.route('/<int:admin_id>')
 @login_required
 @admin_required
-def usuarios():
+def admin_root(admin_id):
+    from app.models.usuario import Usuario
+    from app.models.cliente import Cliente
+    from app.models.orden_servicio import OrdenServicio
+    from app.models.compra import Compra
+    from app.models.factura import Factura
+    from sqlalchemy import func
+    from datetime import date
+
+    stats = {
+        'total_usuarios': Usuario.query.count(),
+        'total_clientes': Cliente.query.count(),
+        'ordenes_pendientes': OrdenServicio.query.filter_by(estado='pendiente').count(),
+        'ordenes_en_proceso': OrdenServicio.query.filter_by(estado='en_proceso').count(),
+        'compras_solicitud': Compra.query.filter_by(estado='solicitud').count(),
+        'facturas_hoy': Factura.query.filter(Factura.fecha == date.today()).count(),
+        'total_ventas_hoy': db.session.query(func.coalesce(func.sum(Factura.total), 0)).filter(Factura.fecha == date.today()).scalar(),
+    }
+    return render_template('admin/welcome.html', admin_id=admin_id, stats=stats, usuario=current_user)
+
+@bp.route('/usuarios/<int:admin_id>')
+@login_required
+@admin_required
+def usuarios(admin_id):
     users = Usuario.query.order_by(Usuario.rol, Usuario.nombre_usuario).all()
     return render_template('admin/usuarios.html', users=users)
 
-@bp.route('/usuarios/agregar', methods=['GET', 'POST'])
+@bp.route('/usuarios/agregar/<int:admin_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def agregar_usuario():
+def agregar_usuario(admin_id):
     if request.method == 'POST':
         nombre_usuario = request.form['nombre_usuario'].strip()
         password = request.form['password']
@@ -67,10 +90,10 @@ def agregar_usuario():
 
     return render_template('admin/form_usuario.html', accion='Agregar', user=None)
 
-@bp.route('/usuarios/editar/<int:id>', methods=['GET', 'POST'])
+@bp.route('/usuarios/editar/<int:admin_id>/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def editar_usuario(id):
+def editar_usuario(admin_id, id):
     user = Usuario.query.get_or_404(id)
     if request.method == 'POST':
         nueva_password = request.form.get('password', '').strip()
@@ -89,10 +112,10 @@ def editar_usuario(id):
 
     return render_template('admin/form_usuario.html', accion='Editar', user=user)
 
-@bp.route('/usuarios/eliminar/<int:id>', methods=['POST'])
+@bp.route('/usuarios/eliminar/<int:admin_id>/<int:id>', methods=['POST'])
 @login_required
 @admin_required
-def eliminar_usuario(id):
+def eliminar_usuario(admin_id, id):
     user = Usuario.query.get_or_404(id)
     if user.id == current_user.id:
         flash('No puedes eliminarte a ti mismo.', 'danger')
@@ -103,17 +126,17 @@ def eliminar_usuario(id):
     flash(f'Usuario "{nombre}" eliminado.', 'info')
     return redirect(url_for('admin.usuarios'))
 
-@bp.route('/compras')
+@bp.route('/compras/<int:admin_id>')
 @login_required
 @admin_required
-def compras():
+def compras(admin_id):
     solicitudes = Compra.query.order_by(Compra.fecha.desc()).all()
     return render_template('admin/compras.html', solicitudes=solicitudes)
 
-@bp.route('/compras/estado/<int:id>/<string:nuevo_estado>', methods=['POST'])
+@bp.route('/compras/<int:admin_id>/estado/<int:id>/<string:nuevo_estado>', methods=['POST'])
 @login_required
 @admin_required
-def actualizar_estado_compra(id, nuevo_estado):
+def actualizar_estado_compra(admin_id, id, nuevo_estado):
     compra = Compra.query.get_or_404(id)
     
     if nuevo_estado not in ['solicitud', 'entregado', 'cancelado']:
@@ -143,10 +166,10 @@ def actualizar_estado_compra(id, nuevo_estado):
     db.session.commit()
     return redirect(url_for('admin.compras'))
 
-@bp.route('/ajustes', methods=['GET', 'POST'])
+@bp.route('/ajustes/<int:admin_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def ajustes():
+def ajustes(admin_id):
     from app.models.config import Config
     import os
     from werkzeug.utils import secure_filename
@@ -179,19 +202,19 @@ def ajustes():
     return render_template('admin/ajustes.html')
 
 
-@bp.route('/resenas')
+@bp.route('/resenas/<int:admin_id>')
 @login_required
 @admin_required
-def resenas():
+def resenas(admin_id):
     from app.models.resena import Resena
     resenas_list = Resena.query.order_by(Resena.fecha.desc()).all()
     return render_template('admin/resenas.html', resenas=resenas_list)
 
 
-@bp.route('/resenas/eliminar/<int:id>', methods=['POST'])
+@bp.route('/resenas/<int:admin_id>/eliminar/<int:id>', methods=['POST'])
 @login_required
 @admin_required
-def eliminar_resena(id):
+def eliminar_resena(admin_id, id):
     from app.models.resena import Resena
     resena = Resena.query.get_or_404(id)
     db.session.delete(resena)
@@ -200,10 +223,10 @@ def eliminar_resena(id):
     return redirect(url_for('admin.resenas'))
 
 
-@bp.route('/resenas/eliminar-todas', methods=['POST'])
+@bp.route('/resenas/<int:admin_id>/eliminar-todas', methods=['POST'])
 @login_required
 @admin_required
-def eliminar_todas_resenas():
+def eliminar_todas_resenas(admin_id):
     from app.models.resena import Resena
     Resena.query.delete()
     db.session.commit()

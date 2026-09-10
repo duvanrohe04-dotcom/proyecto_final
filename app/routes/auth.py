@@ -9,7 +9,7 @@ bp = Blueprint('auth', __name__)
 def login():
     if current_user.is_authenticated:
         if current_user.is_admin():
-            return redirect(url_for('admin.usuarios'))
+            return redirect(url_for('admin.usuarios', admin_id=current_user.id))
         return redirect(url_for('portal.dashboard'))
 
     if request.method == 'POST':
@@ -21,7 +21,7 @@ def login():
             login_user(user)
             flash(f'¡Bienvenido, {user.nombre_usuario}!', 'success')
             if user.is_admin():
-                return redirect(url_for('admin.usuarios'))
+                return redirect(url_for('admin.usuarios', admin_id=user.id))
             return redirect(url_for('portal.dashboard'))
 
         flash('Usuario o contraseña incorrectos.', 'danger')
