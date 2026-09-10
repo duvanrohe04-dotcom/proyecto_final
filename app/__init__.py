@@ -1,7 +1,9 @@
 import os
+import click
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask.cli import with_appcontext
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -70,12 +72,21 @@ def create_app():
     @app.context_processor
     def inject_settings():
         from app.models.config import Config
-        return {
-            'app_name': Config.get_val('app_name', 'MotoTaller Pro'),
-            'app_logo': Config.get_val('app_logo', None),
-            'app_instagram': Config.get_val('app_instagram', ''),
-            'app_whatsapp': Config.get_val('app_whatsapp', ''),
-        }
+        try:
+            return {
+                'app_name': Config.get_val('app_name', 'MotoTaller Pro'),
+                'app_logo': Config.get_val('app_logo', None),
+                'app_instagram': Config.get_val('app_instagram', ''),
+                'app_whatsapp': Config.get_val('app_whatsapp', ''),
+            }
+        except Exception:
+            # Fallback si la BD no está inicializada
+            return {
+                'app_name': 'MotoTaller Pro',
+                'app_logo': None,
+                'app_instagram': '',
+                'app_whatsapp': '',
+            }
 
     # Health check para Coolify / Docker
     @app.route('/health')
@@ -94,3 +105,29 @@ def create_app():
         return redirect(url_for('auth.login'))
 
     return app
+
+# CLI command para inicializar BD en producción
+@click.command('init-db')
+@with_appcontext
+def init_db_command():
+    from sqlalchemy import text
+    db.session.execute(text('DROP SEQUENCE IF EXISTS resena_id_resena_seq CASCADE'))
+    db.session.commit()
+    db.create_all()
+    
+    if not Config.query.filter_by(key='app_name').first():
+        db.session.add(Config(key='app_name', value='MotoTaller Pro'))
+        db.session.add(Config(key='app_logo', value=None))
+        db.session.add(Config(key='app_instagram', value=''))
+        db.session.add(Config(key='app_whatsapp', value=''))
+        db.session.commit()
+        print("✅ Configuración por defecto creada")
+    
+    if not Usuario.query.filter_by(nombre_usuario='admin').first():
+        admin = Usuario(nombre_usuario='admin', rol='admin')
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Admin creado: usuario=admin, contraseña=admin123")
+
+app.cli.add_command(init_db_command)
