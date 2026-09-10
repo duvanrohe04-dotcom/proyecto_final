@@ -77,4 +77,20 @@ def create_app():
             'app_whatsapp': Config.get_val('app_whatsapp', ''),
         }
 
+    # Health check para Coolify / Docker
+    @app.route('/health')
+    def health():
+        return {'status': 'ok'}, 200
+
+    # Redirigir raíz a login si no hay usuario
+    @app.route('/')
+    def root():
+        from flask import redirect, url_for
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            if current_user.is_admin():
+                return redirect(url_for('admin.admin_root', admin_id=current_user.id))
+            return redirect(url_for('portal.dashboard'))
+        return redirect(url_for('auth.login'))
+
     return app

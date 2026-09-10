@@ -5,7 +5,7 @@ from app import db
 
 bp = Blueprint('auth', __name__)
 
-@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         if current_user.is_admin():
