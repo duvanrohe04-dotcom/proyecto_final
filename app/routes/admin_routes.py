@@ -4,6 +4,7 @@ from app.models.usuario import Usuario
 from app.models.cliente import Cliente
 from app.models.compra import Compra
 from app.models.factura import Factura
+from app.models.resena import Resena
 from app import db
 from functools import wraps
 from datetime import date
@@ -231,7 +232,6 @@ def ajustes(admin_id):
 @login_required
 @admin_required
 def resenas(admin_id):
-    from app.models.resena import Resena
     resenas_list = Resena.query.order_by(Resena.fecha.desc()).all()
     return render_template('admin/resenas.html', resenas=resenas_list)
 
@@ -240,7 +240,6 @@ def resenas(admin_id):
 @login_required
 @admin_required
 def eliminar_resena(admin_id, id):
-    from app.models.resena import Resena
     resena = Resena.query.get_or_404(id)
     db.session.delete(resena)
     db.session.commit()
@@ -252,7 +251,6 @@ def eliminar_resena(admin_id, id):
 @login_required
 @admin_required
 def eliminar_todas_resenas(admin_id):
-    from app.models.resena import Resena
     Resena.query.delete()
     db.session.commit()
     flash('Todas las reseñas han sido eliminadas.', 'success')

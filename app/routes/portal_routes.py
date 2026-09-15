@@ -7,6 +7,7 @@ from app.models.mecanico import Mecanico
 from app.models.factura import Factura
 from app.models.repuesto import Repuesto, OrdenRepuesto
 from app.models.compra import Compra, CompraRepuesto
+from app.models.resena import Resena
 from app import db
 from sqlalchemy import case
 from datetime import date
@@ -263,7 +264,6 @@ def cancelar_compra(id):
 @login_required
 @cliente_required
 def resenas():
-    from app.models.resena import Resena
     if request.method == 'POST':
         estrellas = int(request.form.get('estrellas', 5))
         comentario = request.form.get('comentario', '').strip()
@@ -287,7 +287,6 @@ def resenas():
 @login_required
 @cliente_required
 def eliminar_resena(id):
-    from app.models.resena import Resena
     resena = Resena.query.get_or_404(id)
     if resena.id_usuario != current_user.id:
         flash('No puedes eliminar esta reseña.', 'danger')
